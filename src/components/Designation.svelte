@@ -130,7 +130,7 @@
         partesjw = [...dadosjs];
         console.log(gruposNumero);
         gruposNumero.forEach((a) => {
-          if (a.items.length > 0) {
+          if (a.items?.length > 0) {
             grupoDesignacao.push(new GrupoDesignacao(a, partesjw));
             console.log(grupoDesignacao);
           }

@@ -13,34 +13,53 @@
   import PopupConfirm from "./shared/PopupConfirm.svelte";
   import Designation from "./components/Designation.svelte";
   import { fakeGrupos } from "./shared/fakedata/fakedata";
-    import { auth, googleProvider } from '../firebase';
-    import { authState } from 'rxfire/auth';
+  import { auth, googleProvider } from "../firebase";
+  import { authState } from "rxfire/auth";
 
-   let user;
+  import { db } from "../firebase";
+  import { collectionData } from "rxfire/firestore";
+  import { startWith } from "rxjs/operators";
 
-    const unsubscribe = authState(auth).subscribe(u => user = u);
+  let user;
 
-    function login() {
-        auth.signInWithPopup(googleProvider);
-    }
+  const unsubscribe = authState(auth).subscribe((u) => (user = u));
+
+  function login() {
+    auth.signInWithPopup(googleProvider);
+  }
 
   let irmaos = [...fakeIrmaos];
-  const todosGrupos = [...fakeGrupos];
+  //const todosGrupos = [...fakeGrupos];
+  let gruposNumero = [];
+  const gruposRef = db.collection("gruposNumero");
+  let idGrupos;
+  
+  collectionData(gruposRef, "id").subscribe((a) => {
+    if (a) {
+      idGrupos = a[0].id;
+      gruposNumero = [...a[0].grupos];
+    }
+  });
+  function updateGrupos() {
+    db.collection("gruposNumero")
+      .doc(idGrupos)
+      .update({ grupos: gruposNumero });
+  }
 
-  let gruposNumero = [
-    {
-      name: "Grupo 1",
-      items: [todosGrupos[0].nome, todosGrupos[1].nome],
-    },
-    {
-      name: "Grupo 2",
-      items: [todosGrupos[2].nome, todosGrupos[3].nome],
-    },
-    {
-      name: "Grupo 3",
-      items: [todosGrupos[4].nome, todosGrupos[5].nome, todosGrupos[6].nome],
-    },
-  ];
+  // let gruposNumero = [
+  //   {
+  //     name: "Grupo 1",
+  //     items: [todosGrupos[0].nome, todosGrupos[1].nome],
+  //   },
+  //   {
+  //     name: "Grupo 2",
+  //     items: [todosGrupos[2].nome, todosGrupos[3].nome],
+  //   },
+  //   {
+  //     name: "Grupo 3",
+  //     items: [todosGrupos[4].nome, todosGrupos[5].nome, todosGrupos[6].nome],
+  //   },
+  // ];
   let partesPrivilegios = [
     {
       privilegio: "E",
@@ -183,9 +202,6 @@
   }
 </style>
 
-
-
- 
 <Modal {showModal} on:click={toggleModal}>
   {#if popupConfirm}
     <PopupConfirm
@@ -203,45 +219,40 @@
 
 <Header />
 {#if user}
+  <button on:click={() => auth.signOut()}>Logout</button>
+  <main>
+    <Tabs {activeItem} {items} on:tabChange={tabChange} />
 
-    <button on:click={ () => auth.signOut() }>Logout</button>
-<main>
-  <Tabs {activeItem} {items} on:tabChange={tabChange} />
-
-  {#if activeItem == 'Irmãos'}
-    <div in:fly={{ y: 300, duration: 1000 }}>
-      <Button
-        type="secondary"
-        inverse={true}
-        on:click={() => {
-          toggleModal('add');
-        }}>
-        + Irmão
-      </Button>
-      <input placeholder="filtra nome" bind:value={iniciais} />
-      <ListPerson
-        {partesPrivilegios}
-        irmaos={filteredIrmaos}
-        on:editPerson={(e) => {
-          toggleModal('edit', e);
-        }}
-        on:deletePerson={(e) => {
-          toggleModal('confirm', e);
-        }} />
-    </div>
-  {:else if activeItem == 'Grupos'}
-    <div in:fly={{ y: 300, duration: 1000 }}>
-      <SortGroup {gruposNumero} />
-    </div>
-  {:else if activeItem == 'Designações'}
-    <div in:fly={{ y: 300, duration: 1000 }}>
-      <Designation {irmaos} {gruposNumero} />
-    </div>
-  {/if}
-</main>
-<Footer />
-{:else}
-	<button on:click={login}>
-		Signin with Google
-	</button>
-{/if}
+    {#if activeItem == 'Irmãos'}
+      <div in:fly={{ y: 300, duration: 1000 }}>
+        <Button
+          type="secondary"
+          inverse={true}
+          on:click={() => {
+            toggleModal('add');
+          }}>
+          + Irmão
+        </Button>
+        <input placeholder="filtra nome" bind:value={iniciais} />
+        <ListPerson
+          {partesPrivilegios}
+          irmaos={filteredIrmaos}
+          on:editPerson={(e) => {
+            toggleModal('edit', e);
+          }}
+          on:deletePerson={(e) => {
+            toggleModal('confirm', e);
+          }} />
+      </div>
+    {:else if activeItem == 'Grupos'}
+      <div in:fly={{ y: 300, duration: 1000 }}>
+        <SortGroup {gruposNumero} on:updateGrupos={updateGrupos} />
+      </div>
+    {:else if activeItem == 'Designações'}
+      <div in:fly={{ y: 300, duration: 1000 }}>
+        <Designation {irmaos} {gruposNumero} />
+      </div>
+    {/if}
+  </main>
+  <Footer />
+{:else}<button on:click={login}> Signin with Google </button>{/if}

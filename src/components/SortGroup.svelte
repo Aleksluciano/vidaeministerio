@@ -1,6 +1,8 @@
 <script>
 	// Inspired by https://svelte.dev/repl/810b0f1e16ac4bbd8af8ba25d5e0deff?version=3.4.2.
   import {flip} from 'svelte/animate';
+	import { createEventDispatcher } from "svelte";
+	const dispatch = createEventDispatcher();
 
 	export let gruposNumero = [];
 	
@@ -28,11 +30,12 @@
 		gruposNumero = gruposNumero;
 		
 		hoveringOverGrupo = null;
+		dispatch('updateGrupos');
 	}
 </script>
 
 <p>Organize os grupos</p>
-
+{#if gruposNumero.length }
 {#each gruposNumero as grupo, grupoIndex (grupo)}
   <div animate:flip>
     <b>{grupo.name}</b>
@@ -43,6 +46,7 @@
   		on:drop={event => drop(event, grupoIndex)}
   		ondragover="return false"
     >
+		{#if grupo.items }
 	    {#each grupo.items as item, itemIndex (item)}
 			  <div class="item" animate:flip>
 	      	<li
@@ -53,10 +57,11 @@
 	    	  </li>
 			  </div>
 	    {/each}
+			{/if}
     </ul>
   </div>
 {/each}
-
+{/if}
 <style>
 	.hovering {
 		border-color: orange;
