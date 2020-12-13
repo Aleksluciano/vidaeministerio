@@ -1,5 +1,5 @@
 const functions = require('firebase-functions');
-const admin = require("firebase-admin");
+//const admin = require("firebase-admin");
 //  const serviceAccount = require("../systemkey.json")
 const axios = require("axios");
 const HTMLParser = require("node-html-parser");
@@ -20,7 +20,7 @@ const HTMLParser = require("node-html-parser");
 //   databaseURL: "https://vidaeministerio-e4bf6.web.app"
 // });
 
-admin.initializeApp(functions.config().firebase);
+//admin.initializeApp(functions.config().firebase);
 
 //firebase.initializeApp(firebaseConfig);
 
