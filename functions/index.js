@@ -4,13 +4,6 @@ const functions = require('firebase-functions');
 const axios = require("axios");
 const HTMLParser = require("node-html-parser");
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
 // admin.initializeApp({
 //   credential: admin.credential.cert({
 //     projectId: serviceAccount.project_id,
@@ -21,7 +14,6 @@ const HTMLParser = require("node-html-parser");
 // });
 
 //admin.initializeApp(functions.config().firebase);
-
 //firebase.initializeApp(firebaseConfig);
 
 exports.jw = functions.region('southamerica-east1').https.onCall(async (data, context) => {

@@ -116,13 +116,11 @@
     try {
       console.log("inicio try", params);
       //res = await fetch("http://localhost:5001/jw?" + params, myInit);
-      const data = params;
+     
       res = await callFirebaseFnJw({ data: params });
 
       console.log("fim try", res);
-      // console.assert(res?.code == 200, {
-      //   erro: "erro para pegar informação do layout no site Jw!",
-      // });
+ 
       const dadosjs = res.data.dados; // get info layout from jw site
       if (dadosjs.length > 0) {
         let dados = dadosjs.splice(4, 1);
