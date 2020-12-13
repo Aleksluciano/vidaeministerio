@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
- const admin = require("firebase-admin");
- const serviceAccount = require("../systemkey.json")
+const admin = require("firebase-admin");
+//  const serviceAccount = require("../systemkey.json")
 const axios = require("axios");
 const HTMLParser = require("node-html-parser");
 
@@ -11,16 +11,20 @@ const HTMLParser = require("node-html-parser");
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: serviceAccount.project_id,
-    clientEmail: serviceAccount.client_email,
-    privateKey: serviceAccount.private_key
-  }),
-  databaseURL: "https://vidaeministerio-e4bf6.web.app"
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert({
+//     projectId: serviceAccount.project_id,
+//     clientEmail: serviceAccount.client_email,
+//     privateKey: serviceAccount.private_key
+//   }),
+//   databaseURL: "https://vidaeministerio-e4bf6.web.app"
+// });
 
-exports.jw = functions.https.onCall(async (data, context) => {
+admin.initializeApp(functions.config().firebase);
+
+//firebase.initializeApp(firebaseConfig);
+
+exports.jw = functions.region('southamerica-east1').https.onCall(async (data, context) => {
   
   let dados = [];
   console.log(data.data,"AQUIII");

@@ -14,11 +14,10 @@ var firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-firebase.functions().useEmulator("localhost",5001);
+//firebase.functions().useEmulator("localhost",5001);
 export const auth = firebase.auth();
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 export const db = firebase.firestore();
-
 export const callFirebaseFnJw = firebase.functions().httpsCallable("jw");
 
