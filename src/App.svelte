@@ -19,7 +19,7 @@
   import { db } from "../firebase";
   import { collectionData } from "rxfire/firestore";
 import Calender from "./shared/date/Calender.svelte";
-import Login from './components/Login.svelte';
+import LoginUser from './components/LoginUser.svelte';
 
   let user;
 
@@ -246,6 +246,6 @@ import Login from './components/Login.svelte';
   </main>
   <Footer />
 {:else}
-<Login on:logUser={(e) => { console.log(e,"jdhsja"); auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha); } }/>
+<LoginUser on:logUser={(e) => { console.log(e,"jdhsja"); auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha); } }/>
 {/if}
 <!-- 1234 -->
