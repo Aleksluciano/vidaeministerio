@@ -249,4 +249,4 @@ import Login from './components/Login.svelte';
 <!-- <button on:click={login}> Entrar </button> -->
 <Login on:logUser={(e) => { console.log(e,"jdhsja"); auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha); } }/>
 {/if}
-<!-- 123 -->
+<!-- 1234 -->
