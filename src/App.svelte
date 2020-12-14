@@ -20,6 +20,7 @@
   import { collectionData } from "rxfire/firestore";
 import Calender from "./shared/date/Calender.svelte";
 import LoginUser from './components/LoginUser.svelte';
+import { onDestroy } from 'svelte';
 
   let user;
 
@@ -36,14 +37,14 @@ import LoginUser from './components/LoginUser.svelte';
   const irmaosRef = db.collection("irmaos");
   let idGrupos;
 
-  collectionData(gruposRef, "id").subscribe((a) => {
+  const unsubscribeGrupos = collectionData(gruposRef, "id").subscribe((a) => {
     if (a) {
       idGrupos = a[0].id;
       gruposNumero = [...a[0].grupos];
     }
   });
 
-  collectionData(irmaosRef, "id").subscribe((a) => {
+  const unsubscribeIrmaos = collectionData(irmaosRef, "id").subscribe((a) => {
     if (a) {
       console.log(a,"tabela irmaos")
       irmaos = [...a];
@@ -180,6 +181,11 @@ import LoginUser from './components/LoginUser.svelte';
         return nome.toLowerCase().startsWith(iniciais.toLowerCase());
       })
     : [...irmaos];
+
+
+    onDestroy(unsubscribe);
+    onDestroy(unsubscribeIrmaos);
+    onDestroy(unsubscribeGrupos);
 </script>
 
 <style>

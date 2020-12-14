@@ -163,7 +163,7 @@
       firstLoad = false;
     }
 
-    return `jwperiodo=${dataInicial.toLocaleDateString(
+    return `${dataInicial.toLocaleDateString(
       "pt-br"
     )}-${dataFinal.toLocaleDateString("pt-br")}`;
   };
@@ -174,7 +174,7 @@
       dataInicial = new Date(dataInicial.getTime() + 3600 * 24 * -7 * 1000);
       dataFinal = new Date(dataInicial.getTime() + 3600 * 24 * 6 * 1000);
     }
-    return `jwperiodo=${dataInicial.toLocaleDateString(
+    return `${dataInicial.toLocaleDateString(
       "pt-br"
     )}-${dataFinal.toLocaleDateString("pt-br")}`;
   };
