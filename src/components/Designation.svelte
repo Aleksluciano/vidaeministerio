@@ -163,7 +163,7 @@
       firstLoad = false;
     }
 
-    return `${dataInicial.toLocaleDateString(
+    return `jwperiodo=${dataInicial.toLocaleDateString(
       "pt-br"
     )}-${dataFinal.toLocaleDateString("pt-br")}`;
   };
