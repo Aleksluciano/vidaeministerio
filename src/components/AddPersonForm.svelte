@@ -46,8 +46,8 @@ import { subscribe } from "svelte/internal";
 
     irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte];
      
-    if (!irmao.id) irmao.id = Math.random(); //if update Person add a random id just for test
-    console.log(irmao)
+    //if (!irmao.id) irmao.id = Math.random(); //if update Person add a random id just for test
+    //console.log(irmao)
     dispatch("addPerson", irmao);
   };
 

@@ -12,13 +12,13 @@
   import { fakeIrmaos } from "./shared/fakedata/fakedata";
   import PopupConfirm from "./shared/PopupConfirm.svelte";
   import Designation from "./components/Designation.svelte";
-  import { fakeGrupos } from "./shared/fakedata/fakedata";
+
   import { auth, googleProvider } from "../firebase";
   import { authState } from "rxfire/auth";
 
   import { db } from "../firebase";
   import { collectionData } from "rxfire/firestore";
-  import { startWith } from "rxjs/operators";
+import Calender from "./shared/date/Calender.svelte";
 
   let user;
 
@@ -28,38 +28,31 @@
     auth.signInWithPopup(googleProvider);
   }
 
-  let irmaos = [...fakeIrmaos];
+  let irmaos = [];
   //const todosGrupos = [...fakeGrupos];
   let gruposNumero = [];
   const gruposRef = db.collection("gruposNumero");
+  const irmaosRef = db.collection("irmaos");
   let idGrupos;
-  
+
   collectionData(gruposRef, "id").subscribe((a) => {
     if (a) {
       idGrupos = a[0].id;
       gruposNumero = [...a[0].grupos];
     }
   });
+
+  collectionData(irmaosRef, "id").subscribe((a) => {
+    if (a) {
+      console.log(a,"tabela irmaos")
+      irmaos = [...a];
+      console.log(irmaos)
+    }
+  });
   function updateGrupos() {
-    db.collection("gruposNumero")
-      .doc(idGrupos)
-      .update({ grupos: gruposNumero });
+    gruposRef.doc(idGrupos).update({ grupos: gruposNumero });
   }
 
-  // let gruposNumero = [
-  //   {
-  //     name: "Grupo 1",
-  //     items: [todosGrupos[0].nome, todosGrupos[1].nome],
-  //   },
-  //   {
-  //     name: "Grupo 2",
-  //     items: [todosGrupos[2].nome, todosGrupos[3].nome],
-  //   },
-  //   {
-  //     name: "Grupo 3",
-  //     items: [todosGrupos[4].nome, todosGrupos[5].nome, todosGrupos[6].nome],
-  //   },
-  // ];
   let partesPrivilegios = [
     {
       privilegio: "E",
@@ -153,6 +146,7 @@
       irmao = {
         ...e.detail,
       };
+      console.log(irmao)
       formTitle = "Editar Irmão";
     }
 
@@ -169,21 +163,13 @@
   };
 
   const addPerson = (e) => {
-    //handleAnime(1000);
-    irmaos = irmaos.filter((a) => a.id !== e.detail.id);
-    irmaos = [
-      {
-        ...e.detail,
-      },
-      ...irmaos,
-    ];
-    console.log(irmaos);
+    if(!e.detail.id)irmaosRef.add(e.detail)
+    else irmaosRef.doc(e.detail.id).update(e.detail);
     showModal = !showModal;
   };
 
   const deletePerson = () => {
-    //handleAnime(1000);
-    irmaos = irmaos.filter((a) => a.id !== irmao.id);
+    irmaosRef.doc(irmao.id).delete();
     showModal = !showModal;
   };
 
@@ -192,7 +178,7 @@
         const nome = `${irmao.nome}`;
         return nome.toLowerCase().startsWith(iniciais.toLowerCase());
       })
-    : irmaos;
+    : [...irmaos];
 </script>
 
 <style>
