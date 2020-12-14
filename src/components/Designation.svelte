@@ -3,6 +3,7 @@
   import Button from "../shared/Button.svelte";
   import Spinner from "../shared/Spinner.svelte";
   import { callFirebaseFnJw } from "../../firebase.js";
+
   export let gruposNumero = [];
   export let irmaos = [];
   let partesjw = [];
@@ -34,8 +35,8 @@
   let grupoDesignacao = [];
 
   class GrupoDesignacao {
-    constructor(grupo, partes) {
-      this.grupo = { ...grupo };
+    constructor(grupo, partes, sala) {
+      this.grupo = { sala, ...grupo };
       this.partes = [];
       partes.forEach((a) => {
         this.partes.push({ titulo: a, vaga1: null, vaga2: null });
@@ -131,7 +132,9 @@
         console.log(gruposNumero);
         gruposNumero.forEach((a) => {
           if (a.items?.length > 0) {
-            grupoDesignacao.push(new GrupoDesignacao(a, partesjw));
+            grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Principal'));
+            if(a.salaB)grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Sala B'));
+            if(a.salaC)grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Sala C'));
             console.log(grupoDesignacao);
           }
         });
@@ -351,7 +354,7 @@
         {#each grupoDesignacao as gp, i}
           {#if gp}
             <tr>
-              <td class="titulo">{gp.grupo.name}</td>
+              <td class="titulo">{gp.grupo.name} - {gp.grupo.sala}</td>
             </tr>
             {#each gp.partes as item}
               <tr>

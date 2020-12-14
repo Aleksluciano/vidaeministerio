@@ -19,14 +19,15 @@
   import { db } from "../firebase";
   import { collectionData } from "rxfire/firestore";
 import Calender from "./shared/date/Calender.svelte";
+import Login from './components/Login.svelte';
 
   let user;
 
   const unsubscribe = authState(auth).subscribe((u) => (user = u));
 
-  function login() {
-    auth.signInWithPopup(googleProvider);
-  }
+  // function login() {
+  //   auth.signInWithPopup(googleProvider);
+  // }
 
   let irmaos = [];
   //const todosGrupos = [...fakeGrupos];
@@ -184,8 +185,10 @@ import Calender from "./shared/date/Calender.svelte";
 <style>
   main {
     max-width: 960px;
-    margin: 40px auto;
+    margin: 5px auto;
   }
+
+
 </style>
 
 <Modal {showModal} on:click={toggleModal}>
@@ -205,8 +208,9 @@ import Calender from "./shared/date/Calender.svelte";
 
 <Header />
 {#if user}
-  <button on:click={() => auth.signOut()}>Logout</button>
+ 
   <main>
+    <button class="sair-button" on:click={() => auth.signOut()}>Sair</button>
     <Tabs {activeItem} {items} on:tabChange={tabChange} />
 
     {#if activeItem == 'Irmãos'}
@@ -241,4 +245,7 @@ import Calender from "./shared/date/Calender.svelte";
     {/if}
   </main>
   <Footer />
-{:else}<button on:click={login}> Signin with Google </button>{/if}
+{:else}
+<!-- <button on:click={login}> Entrar </button> -->
+<Login on:logUser={(e) => { console.log(e,"jdhsja"); auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha); } }/>
+{/if}

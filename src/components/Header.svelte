@@ -1,5 +1,5 @@
 <header>
-    <h1><img src="/img/leme.svg" alt="leme logo" /></h1>
+    <h1><img src="/img/lecturer.png" alt="leme logo" /></h1>
     <span>Vida e Ministério Cristão</span>
 </header>
 
@@ -25,5 +25,6 @@ span {
   justify-content: center;
   font-size: 18px;
   font-weight: 500;
+  margin-left: 5px;
 }
 </style>
