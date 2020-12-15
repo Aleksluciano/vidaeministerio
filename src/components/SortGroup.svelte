@@ -30,16 +30,14 @@
 
 		// Add the item to the drop target grupo.
 		gruposNumero[grupoIndex].items.push(item);
-		gruposNumero = gruposNumero;
-
+	
+    updateGrupoNumero()
 		hoveringOverGrupo = null;
-		dispatch("updateGrupos");
+		
 	}
 
 	const updateGrupoNumero = () => {
-		console.log("sdasd");
-		gruposNumero = [...gruposNumero];
-		console.log(gruposNumero);
+		dispatch("updateGrupos");
 	};
 </script>
 

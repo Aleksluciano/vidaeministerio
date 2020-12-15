@@ -74,14 +74,20 @@
       let pessoas;
       let pessoa;
 
-      if (this.notEmpty(irmaos))pessoas = this.filtraAtivadasParaEscalar(irmaos);
-      if (this.notEmpty(pessoas))pessoas = this.filtraNaoDesignadasParaOutrasSalas(pessoas);
-      if (this.notEmpty(pessoas))pessoas = this.filtraNaoDesignadasParaEstaSala(pessoas);
-      if (this.notEmpty(pessoas))pessoas = this.filtraDoMesmoGrupo(pessoas);
-      if (this.notEmpty(pessoas))pessoas = this.filtraComProximaParteRelacionada(pessoas,parte);
-      if (this.notEmpty(pessoas) && sexo)pessoas = this.filtraDoMesmoSexo(pessoas,sexo);
-      if (this.notEmpty(pessoas)) pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
-      if (!pessoa)pessoa = { nome: "❌",};
+      if (this.notEmpty(irmaos))
+        pessoas = this.filtraAtivadasParaEscalar(irmaos);
+      if (this.notEmpty(pessoas))
+        pessoas = this.filtraNaoDesignadasParaOutrasSalas(pessoas);
+      if (this.notEmpty(pessoas))
+        pessoas = this.filtraNaoDesignadasParaEstaSala(pessoas);
+      if (this.notEmpty(pessoas)) pessoas = this.filtraDoMesmoGrupo(pessoas);
+      if (this.notEmpty(pessoas))
+        pessoas = this.filtraComProximaParteRelacionada(pessoas, parte);
+      if (this.notEmpty(pessoas) && sexo)
+        pessoas = this.filtraDoMesmoSexo(pessoas, sexo);
+      if (this.notEmpty(pessoas))
+        pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
+      if (!pessoa) pessoa = { nome: "❌" };
 
       return { ...pessoa };
     }
@@ -107,19 +113,18 @@
     filtraDoMesmoGrupo(pessoas) {
       return pessoas.filter((a) => this.grupo.items.includes(a.grupo));
     }
-    filtraComProximaParteRelacionada(pessoas,parte) {
+    filtraComProximaParteRelacionada(pessoas, parte) {
       return pessoas.filter((a) => a.proximaParte.substring(2) == parte);
     }
-    filtraDoMesmoSexo(pessoas,sexo){
+    filtraDoMesmoSexo(pessoas, sexo) {
       return pessoas.filter((a) => a.sexo == sexo);
     }
-    filtraPrimeiraPessoaAdequada(pessoas){
+    filtraPrimeiraPessoaAdequada(pessoas) {
       return pessoas.splice(0, 1)[0];
     }
     notEmpty(array) {
       return array.length > 0;
     }
- 
   }
 
   const doPost = async (params) => {
@@ -265,7 +270,8 @@
     flex: 1;
   }
 
-  span {
+  .stick {
+    position: relative;
     background-color: lightgray;
     cursor: pointer;
     display: flex;
@@ -278,6 +284,11 @@
     height: 32px;
     font-size: 0.9em;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 2);
+  }
+
+  .privilegio {
+    position: absolute;
+    left: 5px;
   }
   span:hover {
     background: orange;
@@ -399,10 +410,24 @@
                   {@html item.titulo}
                 </td>
                 <td class="person-input">
-                  {#if item.vaga1}<span>{item.vaga1.nome}</span>{/if}
+                  {#if item.vaga1}
+                    <span class="stick">
+                      {#if item.vaga1.privilegio}
+                        <span class="privilegio">{item.vaga1?.privilegio}</span>
+                      {/if}
+                      {item.vaga1.nome}
+                    </span>
+                  {/if}
                 </td>
                 <td class="person-input">
-                  {#if item.vaga2}<span>{item.vaga2.nome}</span>{/if}
+                  {#if item.vaga2}
+                    <span class="stick">
+                      {#if item.vaga2.privilegio}
+                        <span class="privilegio">{item.vaga2?.privilegio}</span>
+                      {/if}
+                      {item.vaga2.nome}
+                    </span>
+                  {/if}
                 </td>
               </tr>
             {/each}
