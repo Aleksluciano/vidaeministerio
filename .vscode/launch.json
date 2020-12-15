@@ -30,10 +30,11 @@
       "type": "pwa-node"
     },
     {
-      "type": "node",
+      "type": "chrome",
       "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/server/server.js"
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:5000",
+      "webRoot": "${workspaceFolder}/src/components"
     }
   ]
 }

@@ -3,6 +3,7 @@
   import Button from "../shared/Button.svelte";
   import Spinner from "../shared/Spinner.svelte";
   import { callFirebaseFnJw } from "../../firebase.js";
+  import { fade } from "svelte/transition";
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -70,35 +71,55 @@
     }
 
     procuraIrmao(parte, sexo) {
+      let pessoas;
       let pessoa;
-      if (sexo)
-        pessoa = irmaos.splice(
-          irmaos.findIndex(
-            (a) =>
-              a.situacao &&
-              a.sexo == sexo &&
-              a.parte == parte &&
-              this.grupo.items.includes(a.grupo)
-          ),
-          1
-        )[0];
-      else
-        pessoa = irmaos.splice(
-          irmaos.findIndex(
-            (a) =>
-              a.situacao &&
-              a.parte == parte &&
-              this.grupo.items.includes(a.grupo)
-          ),
-          1
-        )[0];
-      if (!pessoa)
-        pessoa = {
-          nome: "❌",
-        };
+
+      if (this.notEmpty(irmaos))pessoas = this.filtraAtivadasParaEscalar(irmaos);
+      if (this.notEmpty(pessoas))pessoas = this.filtraNaoDesignadasParaOutrasSalas(pessoas);
+      if (this.notEmpty(pessoas))pessoas = this.filtraNaoDesignadasParaEstaSala(pessoas);
+      if (this.notEmpty(pessoas))pessoas = this.filtraDoMesmoGrupo(pessoas);
+      if (this.notEmpty(pessoas))pessoas = this.filtraComProximaParteRelacionada(pessoas,parte);
+      if (this.notEmpty(pessoas) && sexo)pessoas = this.filtraDoMesmoSexo(pessoas,sexo);
+      if (this.notEmpty(pessoas)) pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
+      if (!pessoa)pessoa = { nome: "❌",};
 
       return { ...pessoa };
     }
+
+    filtraAtivadasParaEscalar(irmaos) {
+      return irmaos.filter((a) => a.situacao);
+    }
+
+    filtraNaoDesignadasParaOutrasSalas(pessoas) {
+      return pessoas.filter(
+        (a) =>
+          !grupoDesignacao.some((b) =>
+            b.partes.some((c) => c.vaga1?.id == a.id || c.vaga2?.id == a.id)
+          )
+      );
+    }
+    filtraNaoDesignadasParaEstaSala(pessoas) {
+      return pessoas.filter(
+        (a) =>
+          !this.partes.some((c) => c.vaga1?.id == a.id || c.vaga2?.id == a.id)
+      );
+    }
+    filtraDoMesmoGrupo(pessoas) {
+      return pessoas.filter((a) => this.grupo.items.includes(a.grupo));
+    }
+    filtraComProximaParteRelacionada(pessoas,parte) {
+      return pessoas.filter((a) => a.proximaParte.substring(2) == parte);
+    }
+    filtraDoMesmoSexo(pessoas,sexo){
+      return pessoas.filter((a) => a.sexo == sexo);
+    }
+    filtraPrimeiraPessoaAdequada(pessoas){
+      return pessoas.splice(0, 1)[0];
+    }
+    notEmpty(array) {
+      return array.length > 0;
+    }
+ 
   }
 
   const doPost = async (params) => {
@@ -117,11 +138,11 @@
     try {
       console.log("inicio try", params);
       //res = await fetch("http://localhost:5001/jw?" + params, myInit);
-     
+
       res = await callFirebaseFnJw({ data: params });
 
       console.log("fim try", res);
- 
+
       const dadosjs = res.data.dados; // get info layout from jw site
       if (dadosjs.length > 0) {
         let dados = dadosjs.splice(4, 1);
@@ -132,9 +153,11 @@
         console.log(gruposNumero);
         gruposNumero.forEach((a) => {
           if (a.items?.length > 0) {
-            grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Principal'));
-            if(a.salaB)grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Sala B'));
-            if(a.salaC)grupoDesignacao.push(new GrupoDesignacao(a, partesjw, 'Sala C'));
+            grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Principal"));
+            if (a.salaB)
+              grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Sala B"));
+            if (a.salaC)
+              grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Sala C"));
             console.log(grupoDesignacao);
           }
         });
@@ -206,7 +229,14 @@
 
   .btnControlDate {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
+    height: 3em;
+  }
+
+  .periodo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .person-input {
@@ -256,7 +286,7 @@
 
   table {
     width: 100%;
-    border: 3px solid black;
+    border: 3px solid rgb(60, 122, 81);
   }
   td {
     display: flex;
@@ -282,7 +312,7 @@
     align-items: center;
     height: 80px;
     flex: 1;
-    background-color: black;
+    background-color: whitesmoke;
   }
 
   .control {
@@ -294,7 +324,7 @@
     align-items: center;
     border: solid rgb(110, 109, 109) 1px;
     flex: 4;
-    background-color: black;
+    background-color: whitesmoke;
   }
 
   .titulo {
@@ -304,7 +334,7 @@
     font-weight: 800;
     font-size: 18px;
     padding: 8px;
-    background-color: black;
+    background-color: rgb(60, 122, 81);
   }
 </style>
 
@@ -318,6 +348,27 @@
       }}>
       ANTERIOR
     </Button>
+
+    {#if dataFinal.getMonth() == dataInicial.getMonth()}
+      <div class="periodo">
+        <h2>
+          <a href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
+            de
+            {meses[dataInicial.getMonth() + 1]}</a>
+        </h2>
+      </div>
+    {:else}
+      <div class="periodo">
+        <h2>
+          <a href={linksitejw}>{dataInicial.getDate()}
+            de
+            {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
+            de
+            {meses[dataFinal.getMonth() + 1]}</a>
+        </h2>
+      </div>
+    {/if}
+
     <Button
       type="secondary"
       inverse={true}
@@ -327,23 +378,9 @@
       PROXIMO
     </Button>
   </div>
-  {#if dataFinal.getMonth() == dataInicial.getMonth()}
-    <h2>
-      <a href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
-        de
-        {meses[dataInicial.getMonth() + 1]}</a>
-    </h2>
-  {:else}
-    <h2>
-      <a href={linksitejw}>{dataInicial.getDate()}
-        de
-        {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
-        de
-        {meses[dataFinal.getMonth() + 1]}</a>
-    </h2>
-  {/if}
+
   {#if pronto && partesjw.length > 0}
-    <div class="table-align">
+    <div class="table-align" in:fade|local={{ duration: 1000 }}>
       <table>
         <tr class="control-table">
           <td class="figure">
