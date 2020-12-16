@@ -40,7 +40,7 @@
       this.grupo = { sala, ...grupo };
       this.partes = [];
       partes.forEach((a) => {
-        this.partes.push({ titulo: a, vaga1: null, vaga2: null });
+        this.partes.push({ titulo: a.replace(':',''), vaga1: null, vaga2: null });
       });
       this.preencheVaga();
     }
@@ -284,6 +284,8 @@
     height: 32px;
     font-size: 0.9em;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 2);
+    color:rgb(27, 69, 206);
+    font-weight: 600;
   }
 
   .privilegio {
@@ -412,7 +414,7 @@
                 </td>
                 <td class="person-input">
                   {#if item.vaga1}
-                    <span class="stick">
+                    <span class="stick" style={ item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga1.privilegio}
                         <span class="privilegio">{item.vaga1?.privilegio}</span>
                       {/if}
@@ -422,7 +424,7 @@
                 </td>
                 <td class="person-input">
                   {#if item.vaga2}
-                    <span class="stick">
+                    <span class="stick" style={ item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga2.privilegio}
                         <span class="privilegio">{item.vaga2?.privilegio}</span>
                       {/if}
