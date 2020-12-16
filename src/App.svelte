@@ -192,6 +192,7 @@ import { onDestroy } from 'svelte';
   main {
     max-width: 960px;
     margin: 5px auto;
+    
   }
 
 
@@ -252,6 +253,7 @@ import { onDestroy } from 'svelte';
   </main>
   <Footer />
 {:else}
-<LoginUser on:logUser={(e) => { console.log(e,"jdhsja"); auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha); } }/>
+<LoginUser on:logUser={(e) => auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha)} 
+on:resetPass={(e) => auth.sendPasswordResetEmail(e.detail.user)}/>
 {/if}
-<!-- 1234 -->
+

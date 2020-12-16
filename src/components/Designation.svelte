@@ -289,6 +289,7 @@
   .privilegio {
     position: absolute;
     left: 5px;
+    padding: 5px;
   }
   span:hover {
     background: orange;
