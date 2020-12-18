@@ -4,6 +4,7 @@
   import Spinner from "../shared/Spinner.svelte";
   import { callFirebaseFnJw } from "../../firebase.js";
   import { fade } from "svelte/transition";
+  import { GrupoDesignacao } from "./GrupoDesignacao";
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -33,102 +34,10 @@
   let dataInicial = new Date();
   let dataFinal = new Date();
   let firstLoad = true;
-  let grupoDesignacao = [];
-
-  class GrupoDesignacao {
-    constructor(grupo, partes, sala) {
-      this.grupo = { sala, ...grupo };
-      this.partes = [];
-      partes.forEach((a) => {
-        this.partes.push({ titulo: a.replace(':',''), vaga1: null, vaga2: null });
-      });
-      this.preencheVaga();
-    }
-
-    preencheVaga() {
-      this.partes.forEach((a) => {
-        if (!a.titulo.toLowerCase().match("vídeo")) {
-          if (a.titulo.toLowerCase().match("leitura")) {
-            a.vaga1 = this.procuraIrmao("L", "M");
-          }
-          if (a.titulo.toLowerCase().match("discurso")) {
-            a.vaga1 = this.procuraIrmao("D", "M");
-          }
-          if (a.titulo.toLowerCase().match("conversa")) {
-            a.vaga1 = this.procuraIrmao("C");
-            a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
-          }
-          if (a.titulo.toLowerCase().match("estudo")) {
-            a.vaga1 = this.procuraIrmao("E");
-            a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
-          }
-          if (a.titulo.toLowerCase().match("revisita")) {
-            a.vaga1 = this.procuraIrmao("R");
-            a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
-          }
-        }
-      });
-    }
-
-    procuraIrmao(parte, sexo) {
-      let pessoas;
-      let pessoa;
-
-      if (this.notEmpty(irmaos))
-        pessoas = this.filtraAtivadasParaEscalar(irmaos);
-      if (this.notEmpty(pessoas))
-        pessoas = this.filtraNaoDesignadasParaOutrasSalas(pessoas);
-      if (this.notEmpty(pessoas))
-        pessoas = this.filtraNaoDesignadasParaEstaSala(pessoas);
-      if (this.notEmpty(pessoas)) pessoas = this.filtraDoMesmoGrupo(pessoas);
-      if (this.notEmpty(pessoas))
-        pessoas = this.filtraComProximaParteRelacionada(pessoas, parte);
-      if (this.notEmpty(pessoas) && sexo)
-        pessoas = this.filtraDoMesmoSexo(pessoas, sexo);
-      if (this.notEmpty(pessoas))
-        pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
-      if (!pessoa) pessoa = { nome: "❌" };
-
-      return { ...pessoa };
-    }
-
-    filtraAtivadasParaEscalar(irmaos) {
-      return irmaos.filter((a) => a.situacao);
-    }
-
-    filtraNaoDesignadasParaOutrasSalas(pessoas) {
-      return pessoas.filter(
-        (a) =>
-          !grupoDesignacao.some((b) =>
-            b.partes.some((c) => c.vaga1?.id == a.id || c.vaga2?.id == a.id)
-          )
-      );
-    }
-    filtraNaoDesignadasParaEstaSala(pessoas) {
-      return pessoas.filter(
-        (a) =>
-          !this.partes.some((c) => c.vaga1?.id == a.id || c.vaga2?.id == a.id)
-      );
-    }
-    filtraDoMesmoGrupo(pessoas) {
-      return pessoas.filter((a) => this.grupo.items.includes(a.grupo));
-    }
-    filtraComProximaParteRelacionada(pessoas, parte) {
-      return pessoas.filter((a) => a.proximaParte.substring(2) == parte);
-    }
-    filtraDoMesmoSexo(pessoas, sexo) {
-      return pessoas.filter((a) => a.sexo == sexo);
-    }
-    filtraPrimeiraPessoaAdequada(pessoas) {
-      return pessoas.splice(0, 1)[0];
-    }
-    notEmpty(array) {
-      return array.length > 0;
-    }
-  }
+  let grupoDesignacoes = [];
 
   const doPost = async (params) => {
-    grupoDesignacao = [];
+    grupoDesignacoes = [];
     var myHeaders = new Headers();
 
     var myInit = {
@@ -158,12 +67,33 @@
         console.log(gruposNumero);
         gruposNumero.forEach((a) => {
           if (a.items?.length > 0) {
-            grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Principal"));
+            grupoDesignacoes.push(
+              new GrupoDesignacao(
+                { sala: "Principal", ...a },
+                partesjw,
+                irmaos,
+                grupoDesignacoes
+              )
+            );
             if (a.salaB)
-              grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Sala B"));
+              grupoDesignacoes.push(
+                new GrupoDesignacao(
+                  { sala: "Sala B", ...a },
+                  partesjw,
+                  irmaos,
+                  grupoDesignacoes
+                )
+              );
             if (a.salaC)
-              grupoDesignacao.push(new GrupoDesignacao(a, partesjw, "Sala C"));
-            console.log(grupoDesignacao);
+              grupoDesignacoes.push(
+                new GrupoDesignacao(
+                  { sala: "Sala C", ...a },
+                  partesjw,
+                  irmaos,
+                  grupoDesignacoes
+                )
+              );
+            console.log(grupoDesignacoes);
           }
         });
       }
@@ -251,7 +181,7 @@
     padding: 8px;
     background-color: white;
     align-items: center;
-    border: solid rgb(110, 109, 109) 1px;
+    border: solid rgb(212, 210, 210) 1px;
     flex: 2;
   }
 
@@ -263,7 +193,7 @@
   .label-input {
     display: flex;
     padding: 10px;
-    border: solid rgb(110, 109, 109) 1px;
+    border: solid rgb(199, 197, 197) 1px;
     text-align: center;
     height: 36px;
     align-items: center;
@@ -284,7 +214,7 @@
     height: 32px;
     font-size: 0.9em;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 2);
-    color:rgb(27, 69, 206);
+    color: rgb(27, 69, 206);
     font-weight: 600;
   }
 
@@ -321,7 +251,7 @@
   .figure {
     display: flex;
     padding: 8px;
-    border: solid rgb(110, 109, 109) 1px;
+    border: solid rgb(196, 193, 193) 1px;
     justify-content: center;
     align-items: center;
     height: 80px;
@@ -336,7 +266,7 @@
     padding: 8px;
     background-color: white;
     align-items: center;
-    border: solid rgb(110, 109, 109) 1px;
+    border: solid rgb(197, 195, 195) 1px;
     flex: 4;
     background-color: whitesmoke;
   }
@@ -360,7 +290,7 @@
       on:click={() => {
         doPost(montaDataAnterior());
       }}>
-      ANTERIOR
+      👈🏻
     </Button>
 
     {#if dataFinal.getMonth() == dataInicial.getMonth()}
@@ -389,7 +319,7 @@
       on:click={() => {
         doPost(montaDataProxima());
       }}>
-      PROXIMO
+      👉🏻
     </Button>
   </div>
 
@@ -402,7 +332,7 @@
           </td>
           <td class="control" />
         </tr>
-        {#each grupoDesignacao as gp, i}
+        {#each grupoDesignacoes as gp, i}
           {#if gp}
             <tr>
               <td class="titulo">{gp.grupo.name} - {gp.grupo.sala}</td>
@@ -414,7 +344,9 @@
                 </td>
                 <td class="person-input">
                   {#if item.vaga1}
-                    <span class="stick" style={ item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
+                    <span
+                      class="stick"
+                      style={item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga1.privilegio}
                         <span class="privilegio">{item.vaga1?.privilegio}</span>
                       {/if}
@@ -424,7 +356,9 @@
                 </td>
                 <td class="person-input">
                   {#if item.vaga2}
-                    <span class="stick" style={ item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
+                    <span
+                      class="stick"
+                      style={item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga2.privilegio}
                         <span class="privilegio">{item.vaga2?.privilegio}</span>
                       {/if}

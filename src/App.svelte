@@ -217,7 +217,7 @@ import { onDestroy } from 'svelte';
 {#if user}
  
   <main>
-    <button class="sair-button" on:click={() => auth.signOut()}>Sair</button>
+    <Button class="sair-button" on:click={() => auth.signOut()}>Sair</Button>
     <Tabs {activeItem} {items} on:tabChange={tabChange} />
 
     {#if activeItem == 'Irmãos'}
