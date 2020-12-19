@@ -20,6 +20,7 @@ import { subscribe } from "svelte/internal";
 
   const dispatch = createEventDispatcher();
   let currentDate = new Date();
+  if(irmao.data)currentDate = new Date(irmao.data.substring(6)+'/'+irmao.data.substring(3,5)+'/'+irmao.data.substring(0,2));
   currentDate.setHours(0);
   currentDate.setMinutes(0);
   currentDate.setSeconds(0);
@@ -141,7 +142,7 @@ import { subscribe } from "svelte/internal";
     Nome
     <span>{irmao.nome ? '✔' : ''}</span>
   </p>
-  <input class="input-name" type="text" bind:value={irmao.nome} />
+  <input class="input-name" type="text" bind:value={irmao.nome} maxlength=40/>
   <p class:green={irmao.sexo}>Sexo <span>{irmao.sexo ? '✔' : ''}</span></p>
   <div>
     <label>

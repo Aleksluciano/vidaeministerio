@@ -65,13 +65,23 @@
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
         console.log(gruposNumero);
+
+        irmaos.sort((a, b) =>
+          nDate(a.data).getTime < nDate(b.data).getTime()
+            ? -1
+            : nDate(a.data).getTime() > nDate(b.data).getTime()
+            ? 1
+            : 0
+        );
+        const copyIrmaos = copyArray(irmaos);
+
         gruposNumero.forEach((a) => {
           if (a.items?.length > 0) {
             grupoDesignacoes.push(
               new GrupoDesignacao(
                 { sala: "Principal", ...a },
                 partesjw,
-                irmaos,
+                copyIrmaos,
                 grupoDesignacoes
               )
             );
@@ -80,7 +90,7 @@
                 new GrupoDesignacao(
                   { sala: "Sala B", ...a },
                   partesjw,
-                  irmaos,
+                  copyIrmaos,
                   grupoDesignacoes
                 )
               );
@@ -89,7 +99,7 @@
                 new GrupoDesignacao(
                   { sala: "Sala C", ...a },
                   partesjw,
-                  irmaos,
+                  copyIrmaos,
                   grupoDesignacoes
                 )
               );
@@ -102,6 +112,18 @@
     }
     pronto = true;
   };
+  const nDate = (date) => new Date(date.substring(6)+'/'+date.substring(3,5)+'/'+date.substring(0,2));
+  const diasSemParte = (data) => {
+    let hoje = dataInicial;
+    
+   // console.log(data.substring(6)+'/'+data.substring(3,5)+'/'+data.substring(0,2))
+    let Difference_In_Time = hoje.getTime() - nDate(data).getTime();
+    console.log("Difference_In_Time ",Difference_In_Time)
+    let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+    return Difference_In_Days.toFixed(0);
+  };
+
+  const copyArray = (array) => array.map((a) => ({ ...a }));
 
   const montaDataProxima = () => {
     if (!firstLoad) {
@@ -220,8 +242,17 @@
 
   .privilegio {
     position: absolute;
-    left: 5px;
-    padding: 5px;
+    left: 4px;
+    padding: 1px;
+    color: rgb(87, 85, 85);
+  }
+
+  .dias-diferenca {
+    position: absolute;
+    right: 4px;
+    padding: 1px;
+    color: rgb(87, 85, 85);
+    
   }
   span:hover {
     background: orange;
@@ -350,7 +381,11 @@
                       {#if item.vaga1.privilegio}
                         <span class="privilegio">{item.vaga1?.privilegio}</span>
                       {/if}
+
                       {item.vaga1.nome}
+                      {#if item.vaga1.data}
+                        <span class="dias-diferenca">{ diasSemParte(item.vaga1.data) }</span>
+                      {/if}
                     </span>
                   {/if}
                 </td>
@@ -363,6 +398,9 @@
                         <span class="privilegio">{item.vaga2?.privilegio}</span>
                       {/if}
                       {item.vaga2.nome}
+                      {#if item.vaga2.data}
+                      <span class="dias-diferenca">{ diasSemParte(item.vaga2.data) }</span>
+                    {/if}
                     </span>
                   {/if}
                 </td>

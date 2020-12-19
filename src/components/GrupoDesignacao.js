@@ -21,21 +21,21 @@ export class GrupoDesignacao {
         }
         if (a.titulo.toLowerCase().match("conversa")) {
           a.vaga1 = this.procuraIrmao("C");
-          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
+          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo, a.vaga1.privilegio);
         }
         if (a.titulo.toLowerCase().match("estudo")) {
           a.vaga1 = this.procuraIrmao("E");
-          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
+          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo, a.vaga1.privilegio);
         }
         if (a.titulo.toLowerCase().match("revisita")) {
           a.vaga1 = this.procuraIrmao("R");
-          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo);
+          a.vaga2 = this.procuraIrmao("A", a.vaga1.sexo, a.vaga1.privilegio);
         }
       }
     });
   }
 
-  procuraIrmao(parte, sexo) {
+  procuraIrmao(parte, sexo, privilegio) {
     let pessoas;
     let pessoa;
 
@@ -50,6 +50,8 @@ export class GrupoDesignacao {
       pessoas = this.filtraComProximaParteRelacionada(pessoas, parte);
     if (this.notEmpty(pessoas) && sexo)
       pessoas = this.filtraDoMesmoSexo(pessoas, sexo);
+    if (this.notEmpty(pessoas) && privilegio == 'E')
+      pessoas = this.filtraApenasPublicadores(pessoas, privilegio);
     if (this.notEmpty(pessoas))
       pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
     if (!pessoa) pessoa = { nome: "⚡" };
@@ -84,10 +86,15 @@ export class GrupoDesignacao {
   filtraDoMesmoSexo(pessoas, sexo) {
     return pessoas.filter((a) => a.sexo == sexo);
   }
+  filtraApenasPublicadores(pessoas){
+    return pessoas.filter((a) => a.privilegio == 'P');
+  }
   filtraPrimeiraPessoaAdequada(pessoas) {
     return pessoas.splice(0, 1)[0];
   }
   notEmpty(array) {
     return array.length > 0;
   }
+
+ 
 }
