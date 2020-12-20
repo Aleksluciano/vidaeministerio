@@ -67,7 +67,7 @@
     <input type="password" placeholder="Senha" bind:value={senha} required />
     <Button type="neutral">Logar</Button>
     <br><br>
-    <a on:click={() => (form = 'esqueceu')}>Esqueceu a senha ?</a>
+    <a href="#" on:click={() => (form = 'esqueceu')}>Esqueceu a senha ?</a>
   </form>
 {:else}
 
@@ -87,7 +87,7 @@
     <input type="text" placeholder="Usuário" bind:value={user} required />
     <Button type="neutral">Solicitar Reset</Button>
     <br><br>
-    <a on:click={() => { form = 'logar'; message = ''}}>Logar ?</a>
+    <a href="#" on:click={() => { form = 'logar'; message = ''}}>Logar ?</a>
   </form>
 {/if}
 <img src="/img/talk.svg" alt="pupito">
