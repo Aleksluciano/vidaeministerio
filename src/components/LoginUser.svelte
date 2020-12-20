@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import Button from '../shared/Button.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -34,10 +35,26 @@
    color: yellow;
   }
 
-  .creditos{
+  .creditos1{
+   position: absolute;
+   bottom: 40px;
+   left: 20px;
+  }
+
+  .creditos2{
    position: absolute;
    bottom: 20px;
    left: 20px;
+  }
+
+  .creditos3{
+   position: absolute;
+   bottom: 60px;
+   left: 20px;
+  }
+
+  a{
+    cursor: pointer;
   }
 </style>
 <section>
@@ -48,7 +65,8 @@
     on:submit|preventDefault={() => dispatch('logUser', { user, senha })}>
     <input type="text" placeholder="Usuário" bind:value={user} required />
     <input type="password" placeholder="Senha" bind:value={senha} required />
-    <button type="submit">Logar</button>
+    <Button type="">Logar</Button>
+    <br><br>
     <a on:click={() => (form = 'esqueceu')}>Esqueceu a senha ?</a>
   </form>
 {:else}
@@ -67,11 +85,16 @@
     <p>{message}</p>
     {/if}
     <input type="text" placeholder="Usuário" bind:value={user} required />
-    <button type="submit">Solicitar Reset</button>
+    <Button type="submit">Solicitar Reset</Button>
+    <br><br>
     <a on:click={() => { form = 'logar'; message = ''}}>Logar ?</a>
   </form>
 {/if}
 <img src="/img/talk.svg" alt="pupito">
-<a class="creditos" href="https://www.vecteezy.com/free-vector/meeting">Meeting Vectors by Vecteezy</a>
+<a class="creditos1" target="_blank" href="https://icons8.com/icons/set/reading-ebook">Read Online icon</a>
+<a class="creditos2" target="_blank" href="https://icons8.com"> icon by Icons8</a>
+
+<a class="creditos3" href="https://www.vecteezy.com/free-vector/meeting">Meeting Vectors by Vecteezy</a>
+
 </section>
 <!-- 123 -->

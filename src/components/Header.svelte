@@ -1,5 +1,5 @@
 <header>
-    <h1><img src="/img/lecturer.png" alt="leme logo" /></h1>
+    <h1><img src="/img/read.png" alt="leme logo" /></h1>
     <span>Vida e Ministério Cristão</span>
 </header>
 

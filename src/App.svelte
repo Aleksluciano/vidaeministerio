@@ -6,36 +6,41 @@
   import Modal from "./shared/Modal.svelte";
   import AddPersonForm from "./components/AddPersonForm.svelte";
   import SortGroup from "./components/SortGroup.svelte";
-
   import { fly } from "svelte/transition";
   import ListPerson from "./components/ListPerson.svelte";
-  import { fakeIrmaos } from "./shared/fakedata/fakedata";
   import PopupConfirm from "./shared/PopupConfirm.svelte";
   import Designation from "./components/Designation.svelte";
-
-  import { auth, googleProvider } from "../firebase";
+  import { auth} from "../firebase";
   import { authState } from "rxfire/auth";
-
   import { db } from "../firebase";
   import { collectionData } from "rxfire/firestore";
-import Calender from "./shared/date/Calender.svelte";
-import LoginUser from './components/LoginUser.svelte';
-import { onDestroy } from 'svelte';
+  import LoginUser from "./components/LoginUser.svelte";
+  import { onDestroy } from "svelte";
+  import NewPass from "./components/NewPass.svelte";
+  import SnackBar from "./shared/SnackBar.svelte";
+
 
   let user;
+  let newPass = false;
+  let items = ["Irmãos", "Grupos", "Designações"]; 
+  let activeItem = "Designações";
+  let showModal = false; 
+  let formTitle = "Adicionar Irmão";
+  let irmao = {};
+  let iniciais = "";
+  let popupConfirm = false;
+  let message = "";
+  let textSnack = "Erro: Passou muito tempo logado!";
+  let showSnack = false;
+  let colorSnack = "green";
+  let irmaos = [];
+  let gruposNumero = [];
+  let idGrupos;
 
   const unsubscribe = authState(auth).subscribe((u) => (user = u));
-
-  // function login() {
-  //   auth.signInWithPopup(googleProvider);
-  // }
-
-  let irmaos = [];
-  //const todosGrupos = [...fakeGrupos];
-  let gruposNumero = [];
   const gruposRef = db.collection("gruposNumero");
   const irmaosRef = db.collection("irmaos");
-  let idGrupos;
+
 
   const unsubscribeGrupos = collectionData(gruposRef, "id").subscribe((a) => {
     if (a) {
@@ -46,9 +51,9 @@ import { onDestroy } from 'svelte';
 
   const unsubscribeIrmaos = collectionData(irmaosRef, "id").subscribe((a) => {
     if (a) {
-      console.log(a,"tabela irmaos")
+      console.log(a, "tabela irmaos");
       irmaos = [...a];
-      console.log(irmaos)
+      console.log(irmaos);
     }
   });
   function updateGrupos() {
@@ -116,18 +121,7 @@ import { onDestroy } from 'svelte';
     { privilegio: "A", sexo: "M", items: [] },
   ];
 
-  let items = ["Irmãos", "Grupos", "Designações"]; //avaible tabs
-  //let activeItem = "Irmãos"; // active tab
-  let activeItem = "Designações";
-  // let animeOptions = {
-  //   duration: 0
-  // }; //time to animation fade in and fade out in table
-  let showModal = false; //show or hide modal
-  let formTitle = "Adicionar Irmão"; //tile of the form
-  let irmao = {};
-  let iniciais = "";
-  let popupConfirm = false;
-  let message = "";
+
 
   //change active tab
   const tabChange = (e) => {
@@ -136,6 +130,7 @@ import { onDestroy } from 'svelte';
 
   let toggleModal = (action, e) => {
     popupConfirm = false;
+    newPass = false;
 
     if (action == "add") {
       formTitle = "Adicionar Irmão";
@@ -148,7 +143,7 @@ import { onDestroy } from 'svelte';
       irmao = {
         ...e.detail,
       };
-      console.log(irmao)
+      console.log(irmao);
       formTitle = "Editar Irmão";
     }
 
@@ -161,11 +156,16 @@ import { onDestroy } from 'svelte';
       popupConfirm = true;
     }
 
+    if (action == "newPass") {
+      formTitle = "Editar Senha";
+      newPass = true;
+    }
+
     showModal = !showModal;
   };
 
   const addPerson = (e) => {
-    if(!e.detail.id)irmaosRef.add(e.detail)
+    if (!e.detail.id) irmaosRef.add(e.detail);
     else irmaosRef.doc(e.detail.id).update(e.detail);
     showModal = !showModal;
   };
@@ -182,21 +182,49 @@ import { onDestroy } from 'svelte';
       })
     : [...irmaos];
 
+  const handleUpdatePass = (e) => {
+    auth.currentUser
+      .updatePassword(e.detail.senha)
+      .then((_) => {
+        snackData("green", "Senha modificada!");
+        showModal = !showModal;
+        newPass = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error.code === "auth/requires-recent-login") {
+          snackData("red", "Erro: Saia e logue novamente!");
+        }
+        showModal = !showModal;
+        newPass = false;
+      });
+  };
 
-    onDestroy(unsubscribe);
-    onDestroy(unsubscribeIrmaos);
-    onDestroy(unsubscribeGrupos);
+  const snackData = (color, snText) => {
+    textSnack = snText;
+    colorSnack = color;
+    showSnack = true;
+    setTimeout((_) => (showSnack = false), 6000);
+  };
+
+  onDestroy(unsubscribe);
+  onDestroy(unsubscribeIrmaos);
+  onDestroy(unsubscribeGrupos);
 </script>
 
 <style>
   main {
     max-width: 960px;
     margin: 5px auto;
-    
   }
 
-
+  .operation-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
 </style>
+
+<SnackBar color={colorSnack} {showSnack} text={textSnack} />
 
 <Modal {showModal} on:click={toggleModal}>
   {#if popupConfirm}
@@ -204,6 +232,11 @@ import { onDestroy } from 'svelte';
       {message}
       on:action={(e) => {
         e.detail ? deletePerson() : (showModal = !showModal);
+      }} />
+  {:else if newPass}
+    <NewPass
+      on:newPass={(e) => {
+        handleUpdatePass(e);
       }} />
   {:else}
     <AddPersonForm {partesPrivilegios} {irmao} on:addPerson={addPerson} />
@@ -215,9 +248,13 @@ import { onDestroy } from 'svelte';
 
 <Header />
 {#if user}
- 
   <main>
-    <Button class="sair-button" on:click={() => auth.signOut()}>Sair</Button>
+    <section class="operation-buttons">
+      <Button type="" on:click={() => auth.signOut()}>Sair</Button>
+      <Button type="" on:click={() => toggleModal('newPass')}>
+        Nova senha
+      </Button>
+    </section>
     <Tabs {activeItem} {items} on:tabChange={tabChange} />
 
     {#if activeItem == 'Irmãos'}
@@ -253,7 +290,7 @@ import { onDestroy } from 'svelte';
   </main>
   <Footer />
 {:else}
-<LoginUser on:logUser={(e) => auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha)} 
-on:resetPass={(e) => auth.sendPasswordResetEmail(e.detail.user)}/>
+  <LoginUser
+    on:logUser={(e) => auth.signInWithEmailAndPassword(e.detail.user, e.detail.senha)}
+    on:resetPass={(e) => auth.sendPasswordResetEmail(e.detail.user)} />
 {/if}
-
