@@ -250,8 +250,8 @@
 {#if user}
   <main>
     <section class="operation-buttons">
-      <Button type="" on:click={() => auth.signOut()}>Sair</Button>
-      <Button type="" on:click={() => toggleModal('newPass')}>
+      <Button type="neutral" on:click={() => auth.signOut()}>Sair</Button>
+      <Button type="neutral" on:click={() => toggleModal('newPass')}>
         Nova senha
       </Button>
     </section>

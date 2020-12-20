@@ -26,6 +26,10 @@ button[disabled]{
   color: #666666;
 }
 
+.neutral {
+  background: white;
+  color: #333;
+}
 
 .primary {
   background: #d91b42;

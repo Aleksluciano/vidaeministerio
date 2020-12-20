@@ -65,7 +65,7 @@
     on:submit|preventDefault={() => dispatch('logUser', { user, senha })}>
     <input type="text" placeholder="Usuário" bind:value={user} required />
     <input type="password" placeholder="Senha" bind:value={senha} required />
-    <Button type="">Logar</Button>
+    <Button type="neutral">Logar</Button>
     <br><br>
     <a on:click={() => (form = 'esqueceu')}>Esqueceu a senha ?</a>
   </form>
@@ -85,7 +85,7 @@
     <p>{message}</p>
     {/if}
     <input type="text" placeholder="Usuário" bind:value={user} required />
-    <Button type="submit">Solicitar Reset</Button>
+    <Button type="neutral">Solicitar Reset</Button>
     <br><br>
     <a on:click={() => { form = 'logar'; message = ''}}>Logar ?</a>
   </form>
