@@ -91,7 +91,7 @@
   }
 
   img {
-    max-width: 12px;
+    max-width: 22px;
   }
 
   .space-left {
@@ -142,17 +142,19 @@
               }}
               flat={true}
               type="secondary"
+              cmd="true"
               inverse="true">
-              <img src="/img/edit.svg" alt="editar" />
+              editar
             </Button>
             <span class="space-left" />
             <Button
+              cmd="true"
               inverse="true"
               on:click={() => {
                 dispatch('deletePerson', row);
               }}
               flat={true}>
-              <img src="/img/delete.svg" alt="deletar" />
+             X
             </Button>
           </td>
         </tr>

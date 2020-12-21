@@ -110,6 +110,7 @@ import { subscribe } from "svelte/internal";
     padding: 5px;
     margin-bottom: 5px;
     font-size: .8em;
+    margin: 3px;
   }
 
   label {
@@ -129,7 +130,7 @@ import { subscribe } from "svelte/internal";
     display: flex;
     justify-content: center;
     width: 100%;
-    padding-top: 5%;
+    padding-top: 2%;
   }
 
   span {

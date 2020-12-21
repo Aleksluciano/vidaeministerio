@@ -217,7 +217,7 @@ const destroy_custom = () =>{
   unsubscribeGrupos.unsubscribe();
   user = null; 
 }
-
+activeItem = 'Irmãos';
 </script>
 
 <style>
@@ -232,7 +232,7 @@ main {
 }
 
 .slot{
-  margin: 0px;
+  margin-top: 10px;
 }
 h3{
   margin: 0px;

@@ -30,7 +30,7 @@
  text-align: center;
   }
   img {
-   width: 20em;
+   width: 18em;
    margin-top: 15px;
    color: yellow;
   }
@@ -39,18 +39,21 @@
    position: absolute;
    bottom: 40px;
    left: 20px;
+   font-size: .8em;
   }
 
   .creditos2{
    position: absolute;
    bottom: 20px;
    left: 20px;
+   font-size: .8em;
   }
 
   .creditos3{
    position: absolute;
    bottom: 60px;
    left: 20px;
+   font-size: .8em;
   }
 
   a{

@@ -20,7 +20,8 @@ const dispatch = createEventDispatcher();
 
 <style>
 .tabs {
-  margin-bottom: 40px;
+  margin-top: -6%;
+  margin-bottom: 2%;
 }
 
 ul {
