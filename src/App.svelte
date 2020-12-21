@@ -230,6 +230,13 @@ main {
   display: flex;
   justify-content: space-between;
 }
+
+.slot{
+  margin: 0px;
+}
+h3{
+  margin: 0px;
+}
 </style>
 
 <SnackBar color={colorSnack} {showSnack} text={textSnack} />

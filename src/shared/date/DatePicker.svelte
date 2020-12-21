@@ -74,7 +74,8 @@
     align-items: center;
   }
   input{
-    width: 110px;
+    width: 80px;
+    font-size: .8em;
   }
 </style>
 

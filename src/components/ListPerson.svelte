@@ -62,11 +62,13 @@
   td {
     border: 1px solid black;
     border-collapse: collapse;
+    padding: 0;
   }
   table {
     background: rgb(251, 252, 250);
     text-align: center;
     width: 100%;
+    font-size: .9em;
   }
   table th {
     position: -webkit-sticky;
@@ -75,6 +77,7 @@
     z-index: 0;
     background: #fff;
     border: 2px black solid;
+    font-size: .9em;
   }
 
   th {
@@ -88,7 +91,7 @@
   }
 
   img {
-    max-width: 20px;
+    max-width: 12px;
   }
 
   .space-left {
@@ -101,6 +104,10 @@
 
   tr:hover {
     background-color: #f5f5f5;
+  }
+
+  td{
+    padding: 0;
   }
 </style>
 

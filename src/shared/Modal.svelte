@@ -24,11 +24,15 @@
   .modal{
     padding: 5px;
     border-radius: 10px;
-    max-width: 400px;
+    width: 400px;
     margin: 0% auto;;
     text-align: center;
     background: white;
-    margin-top: 5%;
+    position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+ 
     z-index: 99;
   }
 

@@ -109,17 +109,20 @@ import { subscribe } from "svelte/internal";
     color: rgb(10, 8, 8);
     padding: 5px;
     margin-bottom: 5px;
+    font-size: .8em;
   }
 
   label {
     display: inline;
     margin-right: 10px;
     font-weight: 400;
+    font-size: .8em;
   }
 
   .input-name {
     font-weight: 400;
     text-align: center;
+    font-size: .8em;
   }
 
   .btnPosition {
