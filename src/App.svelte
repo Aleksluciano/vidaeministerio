@@ -33,6 +33,7 @@ import SnackBar from "./shared/SnackBar.svelte";
 import {
   startWith
 } from 'rxjs/operators';
+import { destroy_block } from "svelte/internal";
 
 let user;
 let newPass = false;
@@ -52,14 +53,15 @@ let gruposNumero = [];
 let idGrupos;
 let authenticated = false;
 
-const unsubscribe = authState(auth).subscribe((u) => (user = u));
+
 const gruposRef = db.collection("gruposNumero");
 const irmaosRef = db.collection("irmaos");
 let unsubscribeGrupos;
 let unsubscribeIrmaos;
+let unsubscribeUser;
 
 const subs = () => {
-
+  unsubscribeUser = authState(auth).subscribe((u) => (user = u));
   unsubscribeGrupos = collectionData(gruposRef, "id").subscribe((a) => {
     if (a[0]) {
       const grupos = a[0].grupos;
@@ -202,9 +204,20 @@ const snackData = (color, snText) => {
   setTimeout((_) => (showSnack = false), 6000);
 };
 
-onDestroy(unsubscribe);
-onDestroy(unsubscribeIrmaos);
-onDestroy(unsubscribeGrupos);
+onDestroy(() => { 
+  unsubscribeUser.unsubscribe(); 
+  unsubscribeIrmaos.unsubscribe();
+  unsubscribeGrupos.unsubscribe();
+  user = null; 
+});
+
+const destroy_custom = () =>{
+  unsubscribeUser.unsubscribe(); 
+  unsubscribeIrmaos.unsubscribe();
+  unsubscribeGrupos.unsubscribe();
+  user = null; 
+}
+
 </script>
 
 <style>
@@ -245,7 +258,7 @@ main {
 {#if user}
 <main>
     <section class="operation-buttons">
-        <Button type="neutral" on:click={() => auth.signOut()}>Sair</Button>
+        <Button type="neutral" on:click={() => { auth.signOut(); destroy_custom();}}>Sair</Button>
         <Button type="neutral" on:click={() => toggleModal('newPass')}>
             Nova senha
         </Button>
