@@ -14,7 +14,7 @@
   .panel {
     display: grid;
     justify-content: center;
-    margin-top: 5em;
+    margin-top: 2em;
     position: relative;
  
   }
