@@ -1,5 +1,5 @@
 {
-  "name": "svelte-app",
+  "name": "vidaeministerio-app",
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",

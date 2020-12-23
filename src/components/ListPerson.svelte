@@ -90,11 +90,7 @@
     max-height: 500px;
   }
 
-  img {
-    max-width: 22px;
-  }
-
-  .space-left {
+   .space-left {
     margin-right: 15px;
   }
 

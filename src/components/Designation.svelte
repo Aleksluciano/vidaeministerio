@@ -327,7 +327,7 @@
     {#if dataFinal.getMonth() == dataInicial.getMonth()}
       <div class="periodo">
         <h2>
-          <a href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
+          <a target="_blank" href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}</a>
         </h2>
@@ -335,7 +335,7 @@
     {:else}
       <div class="periodo">
         <h2>
-          <a href={linksitejw}>{dataInicial.getDate()}
+          <a target="_blank" href={linksitejw}>{dataInicial.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
             de

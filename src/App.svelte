@@ -231,9 +231,7 @@ main {
   justify-content: space-between;
 }
 
-.slot{
-  margin-top: 10px;
-}
+
 h3{
   margin: 0px;
 }
