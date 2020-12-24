@@ -87,7 +87,7 @@
   .pane {
     width: 100%;
     overflow-y: scroll;
-    max-height: 500px;
+    max-height: 350px;
   }
 
    .space-left {

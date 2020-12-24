@@ -4,7 +4,7 @@
   import Spinner from "../shared/Spinner.svelte";
   import { callFirebaseFnJw } from "../../firebase.js";
   import { fade } from "svelte/transition";
-  import { GrupoDesignacao } from "./GrupoDesignacao";
+  import { DesignacaoPeriodo } from "./DesignacaoPeriodo";
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -35,6 +35,7 @@
   let dataFinal = new Date();
   let firstLoad = true;
   let grupoDesignacoes = [];
+  let designacaoPeriodo;
 
   const doPost = async (params) => {
     grupoDesignacoes = [];
@@ -73,40 +74,12 @@
             ? 1
             : 0
         );
-        const copyIrmaos = copyArray(irmaos);
 
-        gruposNumero.forEach((a) => {
-          if (a.items?.length > 0) {
-            grupoDesignacoes.push(
-              new GrupoDesignacao(
-                { sala: "Principal", ...a },
-                partesjw,
-                copyIrmaos,
-                grupoDesignacoes
-              )
-            );
-            if (a.salaB)
-              grupoDesignacoes.push(
-                new GrupoDesignacao(
-                  { sala: "Sala B", ...a },
-                  partesjw,
-                  copyIrmaos,
-                  grupoDesignacoes
-                )
-              );
-            if (a.salaC)
-              grupoDesignacoes.push(
-                new GrupoDesignacao(
-                  { sala: "Sala C", ...a },
-                  partesjw,
-                  copyIrmaos,
-                  grupoDesignacoes
-                )
-              );
-            console.log(grupoDesignacoes);
-          }
-        });
+       designacaoPeriodo = new DesignacaoPeriodo(copyArray(irmaos),partesjw,gruposNumero);
+       designacaoPeriodo.montar();
+       console.log("Comecaaaa",designacaoPeriodo)
       }
+   
     } catch (e) {
       console.log(e);
     }
@@ -120,7 +93,9 @@
     let Difference_In_Time = hoje.getTime() - nDate(data).getTime();
     console.log("Difference_In_Time ",Difference_In_Time)
     let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-    return Difference_In_Days.toFixed(0);
+    let result = Difference_In_Days.toFixed(0);
+    if(result < 0)result = result * -1;
+    return result;
   };
 
   const copyArray = (array) => array.map((a) => ({ ...a }));
@@ -158,6 +133,11 @@
       "pt-br"
     )}-${dataFinal.toLocaleDateString("pt-br")}`;
   };
+
+  const manualSelection = () => {
+
+  }
+
 
   doPost(montaDataProxima());
 </script>
@@ -363,17 +343,17 @@
           </td>
           <td class="control" />
         </tr>
-        {#each grupoDesignacoes as gp, i}
+        {#each designacaoPeriodo.grupos as gp, i}
           {#if gp}
             <tr>
-              <td class="titulo">{gp.grupo.name} - {gp.grupo.sala}</td>
+              <td class="titulo">{gp.nomeGrupo} - {gp.nomeSala}</td>
             </tr>
             {#each gp.partes as item}
               <tr>
                 <td class="label-input">
                   {@html item.titulo}
                 </td>
-                <td class="person-input">
+                <td class="person-input" on:click="{()=>{ manualSelection() }}">
                   {#if item.vaga1}
                     <span
                       class="stick"
