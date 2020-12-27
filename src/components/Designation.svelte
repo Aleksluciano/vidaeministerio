@@ -5,6 +5,10 @@
   import { callFirebaseFnJw } from "../../firebase.js";
   import { fade } from "svelte/transition";
   import { DesignacaoPeriodo } from "./DesignacaoPeriodo";
+  import ManualSelection from "./ManualSelection.svelte";
+  import { nDate } from '../shared/date/nDate'
+
+
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -12,6 +16,7 @@
   let linksitejw = "#";
   let imagemjw = "";
   let pronto = false;
+  let showModalManualSelect = false;
 
   const dispatch = createEventDispatcher();
 
@@ -36,6 +41,8 @@
   let firstLoad = true;
   let grupoDesignacoes = [];
   let designacaoPeriodo;
+  let data = [];
+  let top = 0;
 
   const doPost = async (params) => {
     grupoDesignacoes = [];
@@ -68,35 +75,29 @@
         console.log(gruposNumero);
 
         irmaos.sort((a, b) =>
-          nDate(a.data).getTime < nDate(b.data).getTime()
+          nDate(a.data).getTime() < nDate(b.data).getTime()
             ? -1
             : nDate(a.data).getTime() > nDate(b.data).getTime()
             ? 1
             : 0
         );
 
-       designacaoPeriodo = new DesignacaoPeriodo(copyArray(irmaos),partesjw,gruposNumero);
-       designacaoPeriodo.montar();
-       console.log("Comecaaaa",designacaoPeriodo)
+        designacaoPeriodo = new DesignacaoPeriodo(
+          copyArray(irmaos),
+          partesjw,
+          gruposNumero,
+          dataInicial
+        );
+        designacaoPeriodo.montar();
+        console.log("Comecaaaa", designacaoPeriodo);
       }
-   
     } catch (e) {
       console.log(e);
     }
     pronto = true;
   };
-  const nDate = (date) => new Date(date.substring(6)+'/'+date.substring(3,5)+'/'+date.substring(0,2));
-  const diasSemParte = (data) => {
-    let hoje = dataInicial;
-    
-   // console.log(data.substring(6)+'/'+data.substring(3,5)+'/'+data.substring(0,2))
-    let Difference_In_Time = hoje.getTime() - nDate(data).getTime();
-    console.log("Difference_In_Time ",Difference_In_Time)
-    let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-    let result = Difference_In_Days.toFixed(0);
-    if(result < 0)result = result * -1;
-    return result;
-  };
+
+
 
   const copyArray = (array) => array.map((a) => ({ ...a }));
 
@@ -134,10 +135,50 @@
     )}-${dataFinal.toLocaleDateString("pt-br")}`;
   };
 
-  const manualSelection = () => {
+  const toggleModalManualSelect = () => {
+    showModalManualSelect = false;
+  };
 
+
+  const manualSelection = (item,position,gp,e) => {
+
+    let siglaParte;
+    let irmao;
+    let irmao2;
+    let titulo = item.titulo;
+
+if (position == 1){
+   siglaParte = item.siglaParte;
+   irmao = item.vaga1;
+   irmao2 = item.vaga2;
+}
+if (position == 2){ 
+   siglaParte = 'A';
+   irmao = item.vaga2;
+   irmao2 = item.vaga1; 
   }
+    data = {
+      siglaParte,
+      nomeGrupo: gp.nomeGrupo,
+      nomeSala: gp.nomeSala,
+      irmao,
+      irmao2,
+      designacao: designacaoPeriodo,
+      top: e.pageY,
+      left: e.pageX,
+      titulo,
+      position
+    }
 
+    showModalManualSelect = true;
+    console.log(irmao)
+  };
+
+  const salvarPeriodo = () => {
+
+
+    dispatch("salvarPeriodo", { designacaoPeriodo })
+  }
 
   doPost(montaDataProxima());
 </script>
@@ -201,6 +242,27 @@
     align-items: center;
     flex: 1;
   }
+  .titulo {
+    flex: flex;
+    justify-content: left;
+    color: whitesmoke;
+    font-weight: 800;
+    font-size: 18px;
+    padding: 8px;
+    background-color: rgb(60, 122, 81);
+    flex:1
+  }
+
+  .titulo-input {
+    flex: flex;
+    justify-content: center;
+    color: whitesmoke;
+    font-weight: 800;
+    font-size: 18px;
+    padding: 8px;
+    background-color: rgb(60, 122, 81);
+    flex:2
+  }
 
   .stick {
     position: relative;
@@ -232,7 +294,6 @@
     right: 4px;
     padding: 1px;
     color: rgb(87, 85, 85);
-    
   }
   span:hover {
     background: orange;
@@ -282,18 +343,14 @@
     background-color: whitesmoke;
   }
 
-  .titulo {
-    flex: 4;
-    justify-content: left;
-    color: whitesmoke;
-    font-weight: 800;
-    font-size: 18px;
-    padding: 8px;
-    background-color: rgb(60, 122, 81);
-  }
-</style>
 
-<div class="pane">
+</style>
+{#if showModalManualSelect}
+<ManualSelection {data}  on:click={toggleModalManualSelect} on:substituicao={(e)=> { if(designacaoPeriodo.troca(e.detail.subIrmao, data))designacaoPeriodo.grupos = [...designacaoPeriodo.grupos]; toggleModalManualSelect()}}/>
+{/if}
+
+<div class="pane" on:click|self={() => toggleModalManualSelect()}>
+
   <div class="btnControlDate">
     <Button
       type="secondary"
@@ -307,7 +364,9 @@
     {#if dataFinal.getMonth() == dataInicial.getMonth()}
       <div class="periodo">
         <h2>
-          <a target="_blank" href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
+          <a
+            target="_blank"
+            href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}</a>
         </h2>
@@ -341,22 +400,31 @@
           <td class="figure">
             <img src={imagemjw} alt="Imagem" hidden={imagemjw == ''} />
           </td>
-          <td class="control" />
+          <td class="control">
+            <Button type="secondary" on:click={salvarPeriodo}>Salvar</Button>
+            </td>
         </tr>
         {#each designacaoPeriodo.grupos as gp, i}
           {#if gp}
             <tr>
               <td class="titulo">{gp.nomeGrupo} - {gp.nomeSala}</td>
+              <td class="titulo-input">Designado</td>
+              <td class="titulo-input">Ajudante</td>
             </tr>
             {#each gp.partes as item}
               <tr>
                 <td class="label-input">
                   {@html item.titulo}
                 </td>
-                <td class="person-input" on:click="{()=>{ manualSelection() }}">
+                <td
+                  class="person-input">
                   {#if item.vaga1}
                     <span
+                
                       class="stick"
+                      on:click={(e) => {
+                        manualSelection(item,1,gp,e);
+                      }}
                       style={item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga1.privilegio}
                         <span class="privilegio">{item.vaga1?.privilegio}</span>
@@ -364,7 +432,8 @@
 
                       {item.vaga1.nome}
                       {#if item.vaga1.data}
-                        <span class="dias-diferenca">{ diasSemParte(item.vaga1.data) }</span>
+                        <span
+                          class="dias-diferenca">{designacaoPeriodo.diasSemParte(item.vaga1.data)}</span>
                       {/if}
                     </span>
                   {/if}
@@ -372,6 +441,10 @@
                 <td class="person-input">
                   {#if item.vaga2}
                     <span
+               
+                    on:click={(e) => {
+                      manualSelection(item,2,gp,e);
+                    }}
                       class="stick"
                       style={item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga2.privilegio}
@@ -379,8 +452,9 @@
                       {/if}
                       {item.vaga2.nome}
                       {#if item.vaga2.data}
-                      <span class="dias-diferenca">{ diasSemParte(item.vaga2.data) }</span>
-                    {/if}
+                        <span
+                          class="dias-diferenca">{designacaoPeriodo.diasSemParte(item.vaga2.data)}</span>
+                      {/if}
                     </span>
                   {/if}
                 </td>
@@ -395,4 +469,8 @@
   {:else}
     <Spinner />
   {/if}
+
+
 </div>
+
+

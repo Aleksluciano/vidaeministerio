@@ -1,3 +1,5 @@
+import { nDate } from "../shared/date/nDate";
+
 class GrupoDesignacao {
   constructor(nomeGrupo, nomeSala, partes) {
     this.nomeSala = nomeSala;
@@ -5,6 +7,7 @@ class GrupoDesignacao {
     this.partes = [];
     partes.forEach((a) => {
       this.partes.push({
+        siglaParte: '',
         titulo: a.replace(":", ""),
         vaga1: null,
         vaga2: null,
@@ -14,13 +17,14 @@ class GrupoDesignacao {
   }
 }
 export class DesignacaoPeriodo {
-  constructor(irmaos, partes, gruposNumero) {
+  constructor(irmaos, partes, gruposNumero, dataInicial) {
     this.irmaos = [...irmaos];
     this.partes = partes;
     this.grupos = [];
     this.gruposNumero = gruposNumero;
+    this.dataInicial = dataInicial;
   }
-  montar(){
+  montar() {
     this.geraSalasParaGrupos();
     this.designaPartes();
   }
@@ -49,12 +53,15 @@ export class DesignacaoPeriodo {
       x.partes.forEach((a) => {
         if (!a.titulo.toLowerCase().match("vídeo")) {
           if (a.titulo.toLowerCase().match("leitura")) {
+            a.siglaParte = 'L';
             a.vaga1 = this.procuraIrmao("L", x.nomeGrupo, "M");
           }
           if (a.titulo.toLowerCase().match("discurso")) {
+            a.siglaParte = 'D';
             a.vaga1 = this.procuraIrmao("D", x.nomeGrupo, "M");
           }
           if (a.titulo.toLowerCase().match("conversa")) {
+            a.siglaParte = 'C';
             a.vaga1 = this.procuraIrmao("C", x.nomeGrupo);
             a.vaga2 = this.procuraIrmao(
               "A",
@@ -64,6 +71,7 @@ export class DesignacaoPeriodo {
             );
           }
           if (a.titulo.toLowerCase().match("estudo")) {
+            a.siglaParte = 'E';
             a.vaga1 = this.procuraIrmao("E", x.nomeGrupo);
             a.vaga2 = this.procuraIrmao(
               "A",
@@ -73,6 +81,7 @@ export class DesignacaoPeriodo {
             );
           }
           if (a.titulo.toLowerCase().match("revisita")) {
+            a.siglaParte = 'R';
             a.vaga1 = this.procuraIrmao("R", x.nomeGrupo);
             a.vaga2 = this.procuraIrmao(
               "A",
@@ -149,6 +158,64 @@ export class DesignacaoPeriodo {
   notEmpty(array) {
     return array.length > 0;
   }
+
+  diasSemParte(data) {
+    let hoje = this.dataInicial;
+
+    // console.log(data.substring(6)+'/'+data.substring(3,5)+'/'+data.substring(0,2))
+    let Difference_In_Time = hoje.getTime() - nDate(data).getTime();
+    console.log("Difference_In_Time ", Difference_In_Time);
+    let Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+    let result = Difference_In_Days.toFixed(0);
+    if (result < 0) result = result * -1;
+    return result;
+  }
+
+  substituicao(data) {
+  
+    let pessoas = [...this.irmaos];
+    console.log(data.nomeGrupo);
+    if (this.notEmpty(pessoas))
+      pessoas = this.filtraAtivadasParaEscalar(this.pessoas);
+   if (this.notEmpty(pessoas))
+      pessoas = this.filtraNaoDesignadasParaOutrasSalas(pessoas);
+    if (this.notEmpty(pessoas))
+      pessoas = this.filtraDoMesmoGrupo(pessoas, data.nomeGrupo);
+  
+    if (this.notEmpty(pessoas)){
+      let sexo = null;
+      if(data.siglaParte == 'L' || data.siglaParte == 'D'){
+        sexo = 'M';
+      }else{
+      if(data.irmao.nome !== "⚡")sexo = data.irmao.sexo;
+      if(data.irmao.nome == "⚡" && data.irmao2.nome !== "⚡")
+      sexo = data.irmao2.sexo;
+      }
+      if(sexo)
+      pessoas = this.filtraDoMesmoSexo(pessoas, sexo);
+    }
+    if (this.notEmpty(pessoas))
+      pessoas = this.filtraComProximaParteRelacionada(
+        pessoas,
+        data.siglaParte
+      );
+    
+      if(pessoas.length >= 0)pessoas.unshift({ nome: "⚡" })
+
+    return pessoas;
+  }
+
+  troca(newirmao, data){
+    let achou = false;
+    this.grupos.forEach((x) => {
+      x.partes.forEach((a) => {
+         if(x.nomeGrupo == data.nomeGrupo && x.nomeSala ==  data.nomeSala && a.titulo == data.titulo){ 
+           if(data.position == 1){a.vaga1 = { ...newirmao }; achou = true }
+           if(data.position == 2){a.vaga2 = { ...newirmao }; achou = true }
+         }
+      })
+    })
+    return achou;
+  }
+
 }
-
-
