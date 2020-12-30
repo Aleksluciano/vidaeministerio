@@ -39,7 +39,7 @@
 
   const gruposRef = db.collection("gruposNumero");
   const irmaosRef = db.collection("irmaos");
-  const periodoRef = db.collection("periodoRef");
+ 
   let unsubscribeGrupos;
   let unsubscribeIrmaos;
   let unsubscribeUser;
@@ -180,17 +180,7 @@
     showModal = !showModal;
   };
 
-  const salvarPeriodo = (e) => {
-    console.log(e, "haha");
-    const dataInicial = e.detail.designacaoPeriodo.dataInicial.toLocaleDateString(
-      "pt-br"
-    );
 
-    const id = dataInicial.replace(/\//g, "-");
-
-    if (id)
-      periodoRef.doc(id).set({ grupos: e.detail.designacaoPeriodo.grupos });
-  };
 
   const addPerson = (e) => {
     if (!e.detail.id) irmaosRef.add(e.detail);
@@ -337,7 +327,8 @@
         <Designation
           {irmaos}
           {gruposNumero}
-          on:salvarPeriodo={(e) => salvarPeriodo(e)} />
+          on:snack={(e) =>snackData(e.detail.color, e.detail.text)}
+          />
       </div>
     {/if}
   </main>

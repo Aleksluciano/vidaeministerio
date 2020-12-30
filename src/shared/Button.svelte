@@ -4,9 +4,10 @@ export let flat = false;
 export let inverse = false;
 export let disabled = false;
 export let cmd = false;
+export let hidden = false;
 </script>
 
-<button class={type} class:flat={flat} class:inverse={inverse} on:click {disabled} class:cmd={cmd}>
+<button class={type} class:flat={flat} class:inverse={inverse} on:click {disabled} class:cmd={cmd} hidden={hidden} >
     <slot><!-- optional fallback --></slot>
 </button>
 
@@ -64,5 +65,10 @@ button[disabled]{
 
 .primary.inverse.cmd {
   padding: 2px 8px;
+}
+
+.yellow {
+  background: #d9d61b;
+  color: white;
 }
 </style>

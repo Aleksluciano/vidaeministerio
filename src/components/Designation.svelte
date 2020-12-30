@@ -7,7 +7,9 @@
   import { DesignacaoPeriodo } from "./DesignacaoPeriodo";
   import ManualSelection from "./ManualSelection.svelte";
   import { nDate } from '../shared/date/nDate'
-
+  import { db } from "../../firebase";
+import { get_current_component } from "svelte/internal";
+  
 
 
   export let gruposNumero = [];
@@ -17,7 +19,7 @@
   let imagemjw = "";
   let pronto = false;
   let showModalManualSelect = false;
-
+  const irmaosRef = db.collection("irmaos");
   const dispatch = createEventDispatcher();
 
   let meses = [
@@ -43,9 +45,12 @@
   let designacaoPeriodo;
   let data = [];
   let top = 0;
+  let timestamp = null;
+  const periodoRef = db.collection("periodoRef");
 
   const doPost = async (params) => {
     grupoDesignacoes = [];
+    timestamp = null;
     var myHeaders = new Headers();
 
     var myInit = {
@@ -102,6 +107,7 @@
   const copyArray = (array) => array.map((a) => ({ ...a }));
 
   const montaDataProxima = () => {
+   
     if (!firstLoad) {
       if (
         dataInicial.getTime() <
@@ -175,10 +181,22 @@ if (position == 2){
   };
 
   const salvarPeriodo = () => {
+    console.log("salvarrrrrr periodoooooo");
+    const dataInicial = designacaoPeriodo.dataInicial.toLocaleDateString(
+      "pt-br"
+    );
 
+    const id = dataInicial.replace(/\//g, "-");
+    const timestamptemp = new Date();
 
-    dispatch("salvarPeriodo", { designacaoPeriodo })
-  }
+    if (id)
+      periodoRef.doc(id).set({ timestamp: timestamp ,grupos: designacaoPeriodo.grupos }).then(_ =>{
+        timestamp = timestamptemp;
+        dispatch("snack", { color: "green", text: 'Período Salvo'})
+      }).catch(error => {
+        dispatch("snack", { color: "red", text: 'Ocorreu algum erro'})
+      });
+  };
 
   doPost(montaDataProxima());
 </script>
@@ -337,13 +355,46 @@ if (position == 2){
     height: 80px;
     padding: 8px;
     background-color: white;
-    align-items: center;
+    justify-content: space-between;
+    align-items: flex-start;
     border: solid rgb(197, 195, 195) 1px;
     flex: 4;
     background-color: whitesmoke;
   }
+  .command-column{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+.command-line{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
+.commandi{
+  min-width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: flex-start;
+}
+.datasave{
+  font-weight: 500;
+  padding: 2px;
+  border-radius: 10px;
+  border: solid black 1px;
+  width: 100%;
+  background-color: yellow;
+}
 
+.cl{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
 </style>
 {#if showModalManualSelect}
 <ManualSelection {data}  on:click={toggleModalManualSelect} on:substituicao={(e)=> { if(designacaoPeriodo.troca(e.detail.subIrmao, data))designacaoPeriodo.grupos = [...designacaoPeriodo.grupos]; toggleModalManualSelect()}}/>
@@ -401,8 +452,24 @@ if (position == 2){
             <img src={imagemjw} alt="Imagem" hidden={imagemjw == ''} />
           </td>
           <td class="control">
+  
+        <div class="command-column">
+          <div class="command-line">
             <Button type="secondary" on:click={salvarPeriodo}>Salvar</Button>
-            </td>
+          
+         
+            <Button type="yellow" hidden={!timestamp}>Arquivos</Button>
+         
+         
+            <Button type="primary" hidden={!timestamp}>Deletar</Button>
+          </div>
+            <p class="datasave" hidden={!timestamp}> Salvo: { timestamp ? timestamp.toLocaleDateString('pt-BR') : '' } { timestamp ? timestamp.toLocaleTimeString('pt-BR'): '' }</p>
+        </div>
+           
+       
+          </td>
+          
+          
         </tr>
         {#each designacaoPeriodo.grupos as gp, i}
           {#if gp}

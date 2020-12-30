@@ -12,7 +12,9 @@ export let data = {};
 
 </script>
 <div class="backdrop" on:click|self >
-<div class=pane style="top:{data.top}px;left:{data.left}px">
+ 
+<div class="pane" style="top:{data.top}px;left:{data.left}px">
+ 
 <!-- <button class="cancelar" style="top:{data.top - 180}px;">cancelar</button> -->
   {#each data.designacao.substituicao(data) as item}
   <span
@@ -32,6 +34,7 @@ export let data = {};
   {/if}
   </span>
   {/each}
+
   </div>
   </div> 
 
@@ -57,18 +60,33 @@ export let data = {};
   width: 20%;
   z-index: 100;
   padding: 8px;
+  max-height: calc(50vh - 210px);
+    overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+
+  align-items: flex-end;
   background-color: rgb(10, 10, 10,0.8);
   clip-path: polygon(38% 0, 21% 0, 100% 0, 100% 100%, 6% 100%, 6% 6%, 0 0);
+}
+
+.box{
+  padding-top: 20px;
+  padding-bottom: 20px;
+  min-height: 100%;
+  min-width: 100%;
+  position: relative;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 
 
 
   .stick {
+    z-index: 101;
     margin:5px;
     margin-left: 8%;
     position: relative;
@@ -81,7 +99,7 @@ export let data = {};
     justify-content: center;
     align-items: center;
     border-radius: 10px;
-    height: 32px;
+    min-height: 32px;
     font-size: 0.9em;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 2);
     color: rgb(27, 69, 206);
