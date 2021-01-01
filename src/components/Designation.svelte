@@ -6,11 +6,11 @@
   import { fade } from "svelte/transition";
   import { DesignacaoPeriodo } from "./DesignacaoPeriodo";
   import ManualSelection from "./ManualSelection.svelte";
-  import { nDate } from '../shared/date/nDate'
+  import { nDate } from "../shared/date/nDate";
   import { db } from "../../firebase";
-import { get_current_component } from "svelte/internal";
-  
+  import { take } from "rxjs/operators";
 
+  import { collectionData } from "rxfire/firestore";
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -46,38 +46,27 @@ import { get_current_component } from "svelte/internal";
   let data = [];
   let top = 0;
   let timestamp = null;
+  let unsubscribe = null;
   const periodoRef = db.collection("periodoRef");
 
-  const doPost = async (params) => {
-    grupoDesignacoes = [];
-    timestamp = null;
-    var myHeaders = new Headers();
-
-    var myInit = {
-      method: "GET",
-      headers: myHeaders,
-      mode: "cors",
-      cache: "default",
-    };
-    pronto = false;
-
-    let res;
+  const getDataUrlJw = async (params) => {
     try {
-      console.log("inicio try", params);
+    
       //res = await fetch("http://localhost:5001/jw?" + params, myInit);
 
-      res = await callFirebaseFnJw({ data: params });
+      const res = await callFirebaseFnJw({ data: params });
 
-      console.log("fim try", res);
+      
 
       const dadosjs = res.data.dados; // get info layout from jw site
       if (dadosjs.length > 0) {
         let dados = dadosjs.splice(4, 1);
-        console.log(dados, "sobrou");
+   
         imagemjw = dados[0].figura;
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
-        console.log(gruposNumero);
+        const infJw = { imagemjw, linksitejw, partesjw }
+       
 
         irmaos.sort((a, b) =>
           nDate(a.data).getTime() < nDate(b.data).getTime()
@@ -88,26 +77,48 @@ import { get_current_component } from "svelte/internal";
         );
 
         designacaoPeriodo = new DesignacaoPeriodo(
-          copyArray(irmaos),
-          partesjw,
+          irmaos,
+          infJw,
           gruposNumero,
           dataInicial
         );
         designacaoPeriodo.montar();
-        console.log("Comecaaaa", designacaoPeriodo);
+      
       }
     } catch (e) {
       console.log(e);
     }
-    pronto = true;
   };
+  const doPost = async (params) => {
+    grupoDesignacoes = [];
+    timestamp = null;
+    designacaoPeriodo = null;
+    pronto = false;
 
+    const id = idRef();
+   
+    let periodoTake = db.collection("periodoRef").doc(id);
+    const doc = await periodoTake.get();
+   
+    if (!doc.exists) {
+     
+      await getDataUrlJw(params);
+      pronto = true;
+    } else {
+      
+      designacaoPeriodo = new DesignacaoPeriodo(irmaos,doc.data().infJw,
+      doc.data().gruposNumero,
+      dataInicial);
+      timestamp = doc.data().timestamp.toDate();
+      designacaoPeriodo.setGrupos(doc.data().grupos);
 
+      pronto = true;
+    }
+  };
 
   const copyArray = (array) => array.map((a) => ({ ...a }));
 
   const montaDataProxima = () => {
-   
     if (!firstLoad) {
       if (
         dataInicial.getTime() <
@@ -145,24 +156,22 @@ import { get_current_component } from "svelte/internal";
     showModalManualSelect = false;
   };
 
-
-  const manualSelection = (item,position,gp,e) => {
-
+  const manualSelection = (item, position, gp, e) => {
     let siglaParte;
     let irmao;
     let irmao2;
     let titulo = item.titulo;
 
-if (position == 1){
-   siglaParte = item.siglaParte;
-   irmao = item.vaga1;
-   irmao2 = item.vaga2;
-}
-if (position == 2){ 
-   siglaParte = 'A';
-   irmao = item.vaga2;
-   irmao2 = item.vaga1; 
-  }
+    if (position == 1) {
+      siglaParte = item.siglaParte;
+      irmao = item.vaga1;
+      irmao2 = item.vaga2;
+    }
+    if (position == 2) {
+      siglaParte = "A";
+      irmao = item.vaga2;
+      irmao2 = item.vaga1;
+    }
     data = {
       siglaParte,
       nomeGrupo: gp.nomeGrupo,
@@ -173,29 +182,76 @@ if (position == 2){
       top: e.pageY,
       left: e.pageX,
       titulo,
-      position
-    }
-
+      position,
+    };
+    
+    designacaoPeriodo.irmaos = irmaos;
     showModalManualSelect = true;
-    console.log(irmao)
+   
   };
 
-  const salvarPeriodo = () => {
-    console.log("salvarrrrrr periodoooooo");
-    const dataInicial = designacaoPeriodo.dataInicial.toLocaleDateString(
+  const idRef = () => {
+    const dataIniciallocal = dataInicial.toLocaleDateString("pt-BR");
+
+    const id = dataIniciallocal.replace(/\//g, "-");
+    return id;
+  };
+
+  const deletarPeriodo = () => {
+    let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
+    const id = idRef();
+    if(id)
+    periodoRef
+        .doc(id).delete().then(_=>{
+          dispatch("snack", { color: "green", text: "Período removido" });
+
+          if (irmaosForUpdate.length >= 0){
+            irmaosForUpdate.forEach(t=>{
+            dispatch("updateReverse",{ irmao: t, reverse: true})
+            })
+          }
+          doPost(`${dataInicial.toLocaleDateString(
       "pt-br"
-    );
+    )}-${dataFinal.toLocaleDateString("pt-br")}`)
+        });
+  }
 
-    const id = dataInicial.replace(/\//g, "-");
+  const salvarPeriodo = () => {
+    const id = idRef();
     const timestamptemp = new Date();
-
     if (id)
-      periodoRef.doc(id).set({ timestamp: timestamp ,grupos: designacaoPeriodo.grupos }).then(_ =>{
-        timestamp = timestamptemp;
-        dispatch("snack", { color: "green", text: 'Período Salvo'})
-      }).catch(error => {
-        dispatch("snack", { color: "red", text: 'Ocorreu algum erro'})
-      });
+      periodoRef
+        .doc(id)
+        .set({ timestamp: timestamptemp, grupos: designacaoPeriodo.grupos, 
+          gruposNumero: designacaoPeriodo.gruposNumero, infJw: designacaoPeriodo.infJw})
+        .then((_) => {
+          timestamp = timestamptemp;
+          dispatch("snack", { color: "green", text: "Período Salvo" });
+          let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
+          if (irmaosForUpdate.length >= 0){
+          
+            irmaosForUpdate.forEach(a=>{
+              a.data = designacaoPeriodo.dataInicial.toLocaleDateString('pt-BR');
+              dispatch("updatePerson",a);
+            })
+            if (designacaoPeriodo.reverseIrmaos.length >= 0){
+            designacaoPeriodo.reverseIrmaos.forEach(t=>{
+              if(!irmaosForUpdate.find(g=> g.id == t.id)){
+            
+                dispatch("updateReverse",{ irmao: t, reverse: true});
+              }
+            
+            })
+            }
+        
+          }
+          //setTimeout(_=>  designacaoPeriodo.irmaos = [...irmaos],3000)
+          //designacaoPeriodo.irmaos = irmaos;
+        })
+        .catch((error) => {
+          console.log(error)
+          dispatch("snack", { color: "red", text: "Ocorreu algum erro" });
+        });
   };
 
   doPost(montaDataProxima());
@@ -268,7 +324,9 @@ if (position == 2){
     font-size: 18px;
     padding: 8px;
     background-color: rgb(60, 122, 81);
-    flex:1
+    flex: 1;
+    border-top: solid black 2px;
+    border-bottom: solid black 2px;
   }
 
   .titulo-input {
@@ -279,7 +337,9 @@ if (position == 2){
     font-size: 18px;
     padding: 8px;
     background-color: rgb(60, 122, 81);
-    flex:2
+    flex: 2;
+    border-top: solid black 2px;
+    border-bottom: solid black 2px;
   }
 
   .stick {
@@ -320,7 +380,7 @@ if (position == 2){
 
   table {
     width: 100%;
-    border: 3px solid rgb(60, 122, 81);
+    border: 3px solid black;
   }
   td {
     display: flex;
@@ -361,47 +421,43 @@ if (position == 2){
     flex: 4;
     background-color: whitesmoke;
   }
-  .command-column{
+  .command-column {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     width: 100%;
   }
-.command-line{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
+  .command-line {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-.commandi{
-  min-width: 100%;
-  display: flex;
-  justify-content: start;
-  align-items: flex-start;
-}
-.datasave{
-  font-weight: 500;
-  padding: 2px;
-  border-radius: 10px;
-  border: solid black 1px;
-  width: 100%;
-  background-color: yellow;
-}
-
-.cl{
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
+  .datasave {
+    font-weight: 500;
+    padding: 2px;
+    border-radius: 10px;
+    border: solid black 1px;
+    width: 100%;
+    background-color: yellow;
+  }
 </style>
+
 {#if showModalManualSelect}
-<ManualSelection {data}  on:click={toggleModalManualSelect} on:substituicao={(e)=> { if(designacaoPeriodo.troca(e.detail.subIrmao, data))designacaoPeriodo.grupos = [...designacaoPeriodo.grupos]; toggleModalManualSelect()}}/>
+  <ManualSelection
+    {data}
+    on:click={toggleModalManualSelect}
+    on:substituicao={(e) => {
+      if (designacaoPeriodo.troca(e.detail.subIrmao, data)){
+      designacaoPeriodo.grupos = [...designacaoPeriodo.grupos];
+      }
+      toggleModalManualSelect();
+    }} />
 {/if}
 
 <div class="pane" on:click|self={() => toggleModalManualSelect()}>
-
   <div class="btnControlDate">
     <Button
       type="secondary"
@@ -417,7 +473,7 @@ if (position == 2){
         <h2>
           <a
             target="_blank"
-            href={linksitejw}>{dataInicial.getDate()}-{dataFinal.getDate()}
+            href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}-{dataFinal.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}</a>
         </h2>
@@ -425,7 +481,7 @@ if (position == 2){
     {:else}
       <div class="periodo">
         <h2>
-          <a target="_blank" href={linksitejw}>{dataInicial.getDate()}
+          <a target="_blank" href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
             de
@@ -444,53 +500,53 @@ if (position == 2){
     </Button>
   </div>
 
-  {#if pronto && partesjw.length > 0}
+  {#if pronto && designacaoPeriodo?.grupos.length > 0}
     <div class="table-align" in:fade|local={{ duration: 1000 }}>
       <table>
         <tr class="control-table">
           <td class="figure">
-            <img src={imagemjw} alt="Imagem" hidden={imagemjw == ''} />
+            <img src={designacaoPeriodo.imagem} alt="Imagem" hidden={designacaoPeriodo.imagem == ''} />
           </td>
           <td class="control">
-  
-        <div class="command-column">
-          <div class="command-line">
-            <Button type="secondary" on:click={salvarPeriodo}>Salvar</Button>
+            <div class="command-column">
+              <div class="command-line">
+                <Button type="secondary" on:click={salvarPeriodo}>
+                  Salvar
+                </Button>
+
+                <Button type="yellow" hidden={!timestamp}>Arquivos</Button>
+
+                <Button type="primary" hidden={!timestamp} on:click={deletarPeriodo}>Deletar</Button>
+              </div>
+              {#if timestamp}
+              <p class="datasave">
+                Salvo:
+                {timestamp?.toLocaleDateString('pt-BR')}
+                {timestamp?.toLocaleTimeString('pt-BR')}
+              </p>
+              {/if}
           
-         
-            <Button type="yellow" hidden={!timestamp}>Arquivos</Button>
-         
-         
-            <Button type="primary" hidden={!timestamp}>Deletar</Button>
-          </div>
-            <p class="datasave" hidden={!timestamp}> Salvo: { timestamp ? timestamp.toLocaleDateString('pt-BR') : '' } { timestamp ? timestamp.toLocaleTimeString('pt-BR'): '' }</p>
-        </div>
-           
-       
+            </div>
           </td>
-          
-          
         </tr>
         {#each designacaoPeriodo.grupos as gp, i}
           {#if gp}
             <tr>
-              <td class="titulo">{gp.nomeGrupo} - {gp.nomeSala}</td>
-              <td class="titulo-input">Designado</td>
-              <td class="titulo-input">Ajudante</td>
+              <td class="titulo" style={timestamp ? "background:yellow;color:black" : ''}>{gp.nomeGrupo} - {gp.nomeSala}</td>
+              <td class="titulo-input" style={timestamp ? "background:yellow;color:black" : ''}>Designado</td>
+              <td class="titulo-input" style={timestamp ? "background:yellow;color:black" : ''}>Ajudante</td>
             </tr>
             {#each gp.partes as item}
               <tr>
                 <td class="label-input">
                   {@html item.titulo}
                 </td>
-                <td
-                  class="person-input">
+                <td class="person-input">
                   {#if item.vaga1}
                     <span
-                
                       class="stick"
                       on:click={(e) => {
-                        manualSelection(item,1,gp,e);
+                        manualSelection(item, 1, gp, e);
                       }}
                       style={item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga1.privilegio}
@@ -508,10 +564,9 @@ if (position == 2){
                 <td class="person-input">
                   {#if item.vaga2}
                     <span
-               
-                    on:click={(e) => {
-                      manualSelection(item,2,gp,e);
-                    }}
+                      on:click={(e) => {
+                        manualSelection(item, 2, gp, e);
+                      }}
                       class="stick"
                       style={item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
                       {#if item.vaga2.privilegio}
@@ -531,13 +586,9 @@ if (position == 2){
         {/each}
       </table>
     </div>
-  {:else if pronto && partesjw?.length <= 0}
+  {:else if pronto && designacaoPeriodo?.grupos.length <= 0}
     <p>Aconteceu algum erro!!!</p>
   {:else}
     <Spinner />
   {/if}
-
-
 </div>
-
-

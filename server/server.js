@@ -12,7 +12,7 @@ app.get("/jw", async (req, res) => {
   
   let data = [];
   try {
-    console.log(req.query.jwperiodo);
+  
     data = await pegaInformacaoNoSiteJW(req.query.jwperiodo);
   } catch (e) {
     console.log(e);
@@ -77,7 +77,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
   const dataFinal = new DataFinal(periodo);
 
   const urlPartes = definirUrlPartes(dataInicial, dataFinal);
-  console.log(urlPartes);
+  
   try {
     let partes = extrairNomeDeCadaParte(
       dataInicial.ano,

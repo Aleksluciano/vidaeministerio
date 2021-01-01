@@ -56,11 +56,11 @@
     });
 
     unsubscribeIrmaos = collectionData(irmaosRef, "id").subscribe((a) => {
-      console.log(a, "tabela irmaos");
+      
       if (a) {
-        console.log(a, "tabela irmaos");
-        irmaos = [...a];
-        console.log(irmaos);
+      
+        irmaos = a;
+       
       }
     });
   };
@@ -159,7 +159,7 @@
       irmao = {
         ...e.detail,
       };
-      console.log(irmao);
+   
       formTitle = "Editar Irmão";
     }
 
@@ -180,11 +180,36 @@
     showModal = !showModal;
   };
 
+const updateIrmaoData = (irmao,reverse) =>{
 
+    const partesPorPrivilegio = partesPrivilegios.find(a => a.sexo == irmao.sexo && a.privilegio == irmao.privilegio);
+    const quantidadeDePartes = partesPorPrivilegio.items.length;
+    const maximoIndice = quantidadeDePartes - 1;
+    const inicioIndice = 0;
+    
+    irmao.indiceParte = partesPorPrivilegio.items.findIndex(b => b == irmao.parte);
+ 
+    if (irmao.indiceParte == maximoIndice || irmao.indiceParte == inicioIndice)irmao.indiceProximaParte = 1;
+    else irmao.indiceProximaParte = irmao.indiceParte + 1;
+
+    irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte];
+    return irmao
+}
+
+const updatePersonAfterDesignation = (irmao,reverse) => {
+  if(!reverse){
+  irmao.parte = irmao.proximaParte;
+  }
+  irmao = updateIrmaoData(irmao,reverse);
+  irmaosRef.doc(irmao.id).update(irmao);
+}
 
   const addPerson = (e) => {
-    if (!e.detail.id) irmaosRef.add(e.detail);
-    else irmaosRef.doc(e.detail.id).update(e.detail);
+    let irmao = e.detail;
+    irmao.parteAnterior = irmao.parte;
+    irmao = updateIrmaoData(irmao)
+    if (!irmao.id) irmaosRef.add(irmao);
+    else irmaosRef.doc(irmao.id).update(irmao);
     showModal = !showModal;
   };
 
@@ -325,6 +350,8 @@
     {:else if activeItem == 'Designações'}
       <div in:fly={{ y: 300, duration: 1000 }}>
         <Designation
+        on:updatePerson={(e) => updatePersonAfterDesignation(e.detail)}
+        on:updateReverse={(e) => updatePersonAfterDesignation(e.detail.irmao,e.detail.reverse)}
           {irmaos}
           {gruposNumero}
           on:snack={(e) =>snackData(e.detail.color, e.detail.text)}

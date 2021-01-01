@@ -48,12 +48,7 @@ export let data = {};
     left: 0px;
   }
 
-  .cancelar{
-    z-index: 200;
-    position: relative;
-    background-color: brown;
-    margin-right: auto;
-  }
+  
 .pane{
   position: absolute;
   top: 0px;

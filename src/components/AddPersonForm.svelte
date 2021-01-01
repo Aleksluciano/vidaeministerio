@@ -33,27 +33,10 @@ import { subscribe } from "svelte/internal";
   //send data to the father
   const handleSubmit = () => {
     irmao.data = currentDate.toLocaleDateString("pt-br");
-
-
-    const partesPorPrivilegio = partesPrivilegios.find(a => a.sexo == irmao.sexo && a.privilegio == irmao.privilegio);
-    const quantidadeDePartes = partesPorPrivilegio.items.length;
-    const maximoIndice = quantidadeDePartes - 1;
-    const inicioIndice = 0;
-    
-    irmao.indiceParte = partesPorPrivilegio.items.findIndex(b => b == irmao.parte);
-
-    if (irmao.indiceParte == maximoIndice || irmao.indiceParte == inicioIndice)irmao.indiceProximaParte = 1;
-    else irmao.indiceProximaParte = irmao.indiceParte + 1;
-
-    irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte];
-     
-    //if (!irmao.id) irmao.id = Math.random(); //if update Person add a random id just for test
-    //console.log(irmao)
     dispatch("addPerson", irmao);
   };
 
   const encontraIndice = (i) =>{
-      console.log(i,irmao.indiceParteAnterior)
       if (irmao.indiceParteAnterior == i) return i;
   }
 

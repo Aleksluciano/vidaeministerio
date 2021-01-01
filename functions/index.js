@@ -19,12 +19,12 @@ const HTMLParser = require("node-html-parser");
 exports.jw = functions.region('southamerica-east1').https.onCall(async (data, context) => {
   
   let dados = [];
-  console.log(data.data,"AQUIII");
+
   try {
-    console.log(data.data);
+  
     dados = await pegaInformacaoNoSiteJW(data.data);
   } catch (e) {
-    console.log(e);
+ 
     return {
       status: 400,
       message: "This is an error in pegaInformacaoNoSiteJW()",
@@ -85,7 +85,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
   const dataFinal = new DataFinal(periodo);
 
   const urlPartes = definirUrlPartes(dataInicial, dataFinal);
-  console.log(urlPartes);
+ 
   try {
     let partes = extrairNomeDeCadaParte(
       dataInicial.ano,
@@ -104,7 +104,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
     partes.push({ url: urlPartes, figura: figura });
     return partes;
   } catch (e) {
-    console.log(e);
+   
   }
 
   return [];
