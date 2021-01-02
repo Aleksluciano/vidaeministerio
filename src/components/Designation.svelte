@@ -49,24 +49,32 @@
   let unsubscribe = null;
   const periodoRef = db.collection("periodoRef");
 
+  const embaralha = (data) => {
+        for (let i = 0; i < data.length - 1; i++) {
+          let j = i + Math.floor(Math.random() * (data.length - i));
+          let temp = data[j];
+          data[j] = data[i];
+          data[i] = temp;
+        }
+      }
+
   const getDataUrlJw = async (params) => {
     try {
-    
       //res = await fetch("http://localhost:5001/jw?" + params, myInit);
 
       const res = await callFirebaseFnJw({ data: params });
 
-      
 
       const dadosjs = res.data.dados; // get info layout from jw site
       if (dadosjs.length > 0) {
         let dados = dadosjs.splice(4, 1);
-   
+
         imagemjw = dados[0].figura;
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
-        const infJw = { imagemjw, linksitejw, partesjw }
-       
+        const infJw = { imagemjw, linksitejw, partesjw };
+
+        embaralha(irmaos);
 
         irmaos.sort((a, b) =>
           nDate(a.data).getTime() < nDate(b.data).getTime()
@@ -83,7 +91,6 @@
           dataInicial
         );
         designacaoPeriodo.montar();
-      
       }
     } catch (e) {
       console.log(e);
@@ -96,19 +103,20 @@
     pronto = false;
 
     const id = idRef();
-   
+
     let periodoTake = db.collection("periodoRef").doc(id);
     const doc = await periodoTake.get();
-   
+
     if (!doc.exists) {
-     
       await getDataUrlJw(params);
       pronto = true;
     } else {
-      
-      designacaoPeriodo = new DesignacaoPeriodo(irmaos,doc.data().infJw,
-      doc.data().gruposNumero,
-      dataInicial);
+      designacaoPeriodo = new DesignacaoPeriodo(
+        irmaos,
+        doc.data().infJw,
+        doc.data().gruposNumero,
+        dataInicial
+      );
       timestamp = doc.data().timestamp.toDate();
       designacaoPeriodo.setGrupos(doc.data().grupos);
 
@@ -184,10 +192,9 @@
       titulo,
       position,
     };
-    
+
     designacaoPeriodo.irmaos = irmaos;
     showModalManualSelect = true;
-   
   };
 
   const idRef = () => {
@@ -200,21 +207,25 @@
   const deletarPeriodo = () => {
     let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
     const id = idRef();
-    if(id)
-    periodoRef
-        .doc(id).delete().then(_=>{
+    if (id)
+      periodoRef
+        .doc(id)
+        .delete()
+        .then((_) => {
           dispatch("snack", { color: "green", text: "Período removido" });
 
-          if (irmaosForUpdate.length >= 0){
-            irmaosForUpdate.forEach(t=>{
-            dispatch("updateReverse",{ irmao: t, reverse: true})
-            })
+          if (irmaosForUpdate.length >= 0) {
+            irmaosForUpdate.forEach((t) => {
+              dispatch("updateReverse", { irmao: t, reverse: true });
+            });
           }
-          doPost(`${dataInicial.toLocaleDateString(
-      "pt-br"
-    )}-${dataFinal.toLocaleDateString("pt-br")}`)
+          doPost(
+            `${dataInicial.toLocaleDateString(
+              "pt-br"
+            )}-${dataFinal.toLocaleDateString("pt-br")}`
+          );
         });
-  }
+  };
 
   const salvarPeriodo = () => {
     const id = idRef();
@@ -222,34 +233,36 @@
     if (id)
       periodoRef
         .doc(id)
-        .set({ timestamp: timestamptemp, grupos: designacaoPeriodo.grupos, 
-          gruposNumero: designacaoPeriodo.gruposNumero, infJw: designacaoPeriodo.infJw})
+        .set({
+          timestamp: timestamptemp,
+          grupos: designacaoPeriodo.grupos,
+          gruposNumero: designacaoPeriodo.gruposNumero,
+          infJw: designacaoPeriodo.infJw,
+        })
         .then((_) => {
           timestamp = timestamptemp;
           dispatch("snack", { color: "green", text: "Período Salvo" });
           let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
-          if (irmaosForUpdate.length >= 0){
-          
-            irmaosForUpdate.forEach(a=>{
-              a.data = designacaoPeriodo.dataInicial.toLocaleDateString('pt-BR');
-              dispatch("updatePerson",a);
-            })
-            if (designacaoPeriodo.reverseIrmaos.length >= 0){
-            designacaoPeriodo.reverseIrmaos.forEach(t=>{
-              if(!irmaosForUpdate.find(g=> g.id == t.id)){
-            
-                dispatch("updateReverse",{ irmao: t, reverse: true});
-              }
-            
-            })
+          if (irmaosForUpdate.length >= 0) {
+            irmaosForUpdate.forEach((a) => {
+              a.data = designacaoPeriodo.dataInicial.toLocaleDateString(
+                "pt-BR"
+              );
+              dispatch("updatePerson", a);
+            });
+            if (designacaoPeriodo.reverseIrmaos.length >= 0) {
+              designacaoPeriodo.reverseIrmaos.forEach((t) => {
+                if (!irmaosForUpdate.find((g) => g.id == t.id)) {
+                  dispatch("updateReverse", { irmao: t, reverse: true });
+                }
+              });
             }
-        
           }
           //setTimeout(_=>  designacaoPeriodo.irmaos = [...irmaos],3000)
           //designacaoPeriodo.irmaos = irmaos;
         })
         .catch((error) => {
-          console.log(error)
+          console.log(error);
           dispatch("snack", { color: "red", text: "Ocorreu algum erro" });
         });
   };
@@ -450,8 +463,8 @@
     {data}
     on:click={toggleModalManualSelect}
     on:substituicao={(e) => {
-      if (designacaoPeriodo.troca(e.detail.subIrmao, data)){
-      designacaoPeriodo.grupos = [...designacaoPeriodo.grupos];
+      if (designacaoPeriodo.troca(e.detail.subIrmao, data)) {
+        designacaoPeriodo.grupos = [...designacaoPeriodo.grupos];
       }
       toggleModalManualSelect();
     }} />
@@ -481,7 +494,9 @@
     {:else}
       <div class="periodo">
         <h2>
-          <a target="_blank" href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}
+          <a
+            target="_blank"
+            href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}
             de
             {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
             de
@@ -505,7 +520,10 @@
       <table>
         <tr class="control-table">
           <td class="figure">
-            <img src={designacaoPeriodo.imagem} alt="Imagem" hidden={designacaoPeriodo.imagem == ''} />
+            <img
+              src={designacaoPeriodo.imagem}
+              alt="Imagem"
+              hidden={designacaoPeriodo.imagem == ''} />
           </td>
           <td class="control">
             <div class="command-column">
@@ -516,25 +534,43 @@
 
                 <Button type="yellow" hidden={!timestamp}>Arquivos</Button>
 
-                <Button type="primary" hidden={!timestamp} on:click={deletarPeriodo}>Deletar</Button>
+                <Button
+                  type="primary"
+                  hidden={!timestamp}
+                  on:click={deletarPeriodo}>
+                  Deletar
+                </Button>
               </div>
               {#if timestamp}
-              <p class="datasave">
-                Salvo:
-                {timestamp?.toLocaleDateString('pt-BR')}
-                {timestamp?.toLocaleTimeString('pt-BR')}
-              </p>
+                <p class="datasave">
+                  Salvo:
+                  {timestamp?.toLocaleDateString('pt-BR')}
+                  {timestamp?.toLocaleTimeString('pt-BR')}
+                </p>
               {/if}
-          
             </div>
           </td>
         </tr>
         {#each designacaoPeriodo.grupos as gp, i}
           {#if gp}
             <tr>
-              <td class="titulo" style={timestamp ? "background:yellow;color:black" : ''}>{gp.nomeGrupo} - {gp.nomeSala}</td>
-              <td class="titulo-input" style={timestamp ? "background:yellow;color:black" : ''}>Designado</td>
-              <td class="titulo-input" style={timestamp ? "background:yellow;color:black" : ''}>Ajudante</td>
+              <td
+                class="titulo"
+                style={timestamp ? 'background:yellow;color:black' : ''}>
+                {gp.nomeGrupo}
+                -
+                {gp.nomeSala}
+              </td>
+              <td
+                class="titulo-input"
+                style={timestamp ? 'background:yellow;color:black' : ''}>
+                Designado
+              </td>
+              <td
+                class="titulo-input"
+                style={timestamp ? 'background:yellow;color:black' : ''}>
+                Ajudante
+              </td>
             </tr>
             {#each gp.partes as item}
               <tr>
