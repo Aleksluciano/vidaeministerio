@@ -8,12 +8,12 @@
   import ManualSelection from "./ManualSelection.svelte";
   import { nDate } from "../shared/date/nDate";
   import { db } from "../../firebase";
-  import { take } from "rxjs/operators";
-
-  import { collectionData } from "rxfire/firestore";
 
   export let gruposNumero = [];
   export let irmaos = [];
+
+
+
   let partesjw = [];
   let linksitejw = "#";
   let imagemjw = "";
@@ -41,12 +41,9 @@
   let dataInicial = new Date();
   let dataFinal = new Date();
   let firstLoad = true;
-  let grupoDesignacoes = [];
   let designacaoPeriodo;
   let data = [];
-  let top = 0;
   let timestamp = null;
-  let unsubscribe = null;
   const periodoRef = db.collection("periodoRef");
 
   const embaralha = (data) => {
@@ -240,10 +237,11 @@
           infJw: designacaoPeriodo.infJw,
         })
         .then((_) => {
-          timestamp = timestamptemp;
+         
           dispatch("snack", { color: "green", text: "Período Salvo" });
           let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
           if (irmaosForUpdate.length >= 0) {
+            if(!timestamp)
             irmaosForUpdate.forEach((a) => {
               a.data = designacaoPeriodo.dataInicial.toLocaleDateString(
                 "pt-BR"
@@ -258,8 +256,7 @@
               });
             }
           }
-          //setTimeout(_=>  designacaoPeriodo.irmaos = [...irmaos],3000)
-          //designacaoPeriodo.irmaos = irmaos;
+          timestamp = timestamptemp;
         })
         .catch((error) => {
           console.log(error);
