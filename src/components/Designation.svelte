@@ -94,7 +94,6 @@
     }
   };
   const doPost = async (params) => {
-    grupoDesignacoes = [];
     timestamp = null;
     designacaoPeriodo = null;
     pronto = false;
