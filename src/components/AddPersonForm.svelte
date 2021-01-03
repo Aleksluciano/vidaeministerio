@@ -33,6 +33,7 @@ import { subscribe } from "svelte/internal";
   //send data to the father
   const handleSubmit = () => {
     irmao.data = currentDate.toLocaleDateString("pt-br");
+    irmao.nome = irmao.nome.charAt(0).toUpperCase() + irmao.nome.slice(1);
     dispatch("addPerson", irmao);
   };
 

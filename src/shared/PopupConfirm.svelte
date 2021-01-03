@@ -6,7 +6,6 @@ export let message = '';
 const dispatch = createEventDispatcher();
 
 </script>
-
 <p>{message}</p>
 <br><br>
 <div class="classButtons">

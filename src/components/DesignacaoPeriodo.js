@@ -68,32 +68,68 @@ export class DesignacaoPeriodo {
           if (a.titulo.toLowerCase().match("conversa")) {
             a.siglaParte = "C";
             a.vaga1 = this.procuraIrmao("C", x.nomeGrupo);
+            if(a.vaga1.nome !== "⚡")
             a.vaga2 = this.procuraIrmao(
               "A",
               x.nomeGrupo,
               a.vaga1.sexo,
               a.vaga1.privilegio
             );
+            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao("C", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
+              if(a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            }
+            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
           }
           if (a.titulo.toLowerCase().match("estudo")) {
             a.siglaParte = "E";
             a.vaga1 = this.procuraIrmao("E", x.nomeGrupo);
+            if(a.vaga1.nome !== "⚡")
             a.vaga2 = this.procuraIrmao(
               "A",
               x.nomeGrupo,
               a.vaga1.sexo,
               a.vaga1.privilegio
             );
+            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao("E", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
+              if(a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            }
+            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
           }
           if (a.titulo.toLowerCase().match("revisita")) {
             a.siglaParte = "R";
             a.vaga1 = this.procuraIrmao("R", x.nomeGrupo);
+            if(a.vaga1.nome !== "⚡")
             a.vaga2 = this.procuraIrmao(
               "A",
               x.nomeGrupo,
               a.vaga1.sexo,
               a.vaga1.privilegio
             );
+            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao("R", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
+              if(a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            }
+            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
           }
         }
       });
@@ -245,5 +281,9 @@ export class DesignacaoPeriodo {
   }
   setDataInicial(dataInicial) {
     this.dataInicial = dataInicial;
+  }
+  inverteSexo(sexo){
+    if(sexo == 'F')return 'M';
+    if(sexo == 'M')return 'F'
   }
 }

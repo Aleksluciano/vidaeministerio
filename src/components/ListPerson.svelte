@@ -105,6 +105,11 @@
   td{
     padding: 0;
   }
+
+  .st{
+    border: solid black 1px;
+    box-shadow: 0 0 0 4px #838181;
+  }
 </style>
 
 <div class="pane">
@@ -124,7 +129,7 @@
     <tbody>
       {#each irmaos as row (row.id)}
         <tr in:fade|local={animeOptions} out:fade|local={animeOptions}>
-          <td>{row.situacao ? '🟢' : '🔴'}</td>
+          <td class="st">{row.situacao ? '🟢' : '🔴'}</td>
           <td>{row.nome}</td>
           <td>{row.sexo}</td>
           <td>{siglaPrivilegio(row.privilegio)}</td>

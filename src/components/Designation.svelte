@@ -8,11 +8,11 @@
   import ManualSelection from "./ManualSelection.svelte";
   import { nDate } from "../shared/date/nDate";
   import { db } from "../../firebase";
+  import Modal  from "../shared/Modal.svelte";
+  import PopupConfirm from "../shared/PopupConfirm.svelte";
 
   export let gruposNumero = [];
   export let irmaos = [];
-
-
 
   let partesjw = [];
   let linksitejw = "#";
@@ -47,20 +47,19 @@
   const periodoRef = db.collection("periodoRef");
 
   const embaralha = (data) => {
-        for (let i = 0; i < data.length - 1; i++) {
-          let j = i + Math.floor(Math.random() * (data.length - i));
-          let temp = data[j];
-          data[j] = data[i];
-          data[i] = temp;
-        }
-      }
+    for (let i = 0; i < data.length - 1; i++) {
+      let j = i + Math.floor(Math.random() * (data.length - i));
+      let temp = data[j];
+      data[j] = data[i];
+      data[i] = temp;
+    }
+  };
 
   const getDataUrlJw = async (params) => {
     try {
       //res = await fetch("http://localhost:5001/jw?" + params, myInit);
 
       const res = await callFirebaseFnJw({ data: params });
-
 
       const dadosjs = res.data.dados; // get info layout from jw site
       if (dadosjs.length > 0) {
@@ -73,13 +72,14 @@
 
         embaralha(irmaos);
 
-        irmaos.sort((a, b) =>
-          nDate(a.data).getTime() < nDate(b.data).getTime()
-            ? -1
-            : nDate(a.data).getTime() > nDate(b.data).getTime()
-            ? 1
-            : 0
-        );
+        irmaos
+          .sort((a, b) =>
+            nDate(a.data).getTime() < nDate(b.data).getTime()
+              ? -1
+              : nDate(a.data).getTime() > nDate(b.data).getTime()
+              ? 1
+              : 0
+          );
 
         designacaoPeriodo = new DesignacaoPeriodo(
           irmaos,
@@ -190,6 +190,17 @@
     };
 
     designacaoPeriodo.irmaos = irmaos;
+    designacaoPeriodo.irmaos
+      .sort((a, b) =>
+        parseInt(designacaoPeriodo.diasSemParte(a.data)) <
+        parseInt(designacaoPeriodo.diasSemParte(b.data))
+          ? -1
+          : parseInt(designacaoPeriodo.diasSemParte(a.data)) >
+            parseInt(designacaoPeriodo.diasSemParte(b.data))
+          ? 1
+          : 0
+      )
+      .reverse();
     showModalManualSelect = true;
   };
 
@@ -201,6 +212,7 @@
   };
 
   const deletarPeriodo = () => {
+    showModal = !showModal;
     let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
     const id = idRef();
     if (id)
@@ -209,7 +221,6 @@
         .delete()
         .then((_) => {
           dispatch("snack", { color: "green", text: "Período removido" });
-
           if (irmaosForUpdate.length >= 0) {
             irmaosForUpdate.forEach((t) => {
               dispatch("updateReverse", { irmao: t, reverse: true });
@@ -236,17 +247,16 @@
           infJw: designacaoPeriodo.infJw,
         })
         .then((_) => {
-         
           dispatch("snack", { color: "green", text: "Período Salvo" });
           let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
           if (irmaosForUpdate.length >= 0) {
-            if(!timestamp)
-            irmaosForUpdate.forEach((a) => {
-              a.data = designacaoPeriodo.dataInicial.toLocaleDateString(
-                "pt-BR"
-              );
-              dispatch("updatePerson", a);
-            });
+            if (!timestamp)
+              irmaosForUpdate.forEach((a) => {
+                a.data = designacaoPeriodo.dataInicial.toLocaleDateString(
+                  "pt-BR"
+                );
+                dispatch("updatePerson", a);
+              });
             if (designacaoPeriodo.reverseIrmaos.length >= 0) {
               designacaoPeriodo.reverseIrmaos.forEach((t) => {
                 if (!irmaosForUpdate.find((g) => g.id == t.id)) {
@@ -263,6 +273,11 @@
         });
   };
 
+  let showModal = false;
+  const toggleModal = () =>{
+    showModal = !showModal
+  }
+
   doPost(montaDataProxima());
 </script>
 
@@ -274,6 +289,7 @@
     justify-content: center;
     text-align: center;
     align-content: center;
+    margin-bottom: 10em;
   }
 
   tr {
@@ -452,6 +468,11 @@
     width: 100%;
     background-color: yellow;
   }
+
+  .btn-resfresh{
+    position: absolute;
+    margin-left: 5em;
+  }
 </style>
 
 {#if showModalManualSelect}
@@ -466,6 +487,17 @@
     }} />
 {/if}
 
+<Modal {showModal} on:click={toggleModal}>
+    <PopupConfirm
+      message={`Remover período ${dataInicial.toLocaleDateString("pt-br")}-${dataFinal.toLocaleDateString("pt-br")}`}
+      on:action={(e) => {
+        e.detail ? deletarPeriodo() : (showModal = !showModal);
+      }} />
+  <div slot="title">
+    <h3>Confirmar</h3>
+  </div>
+</Modal>
+
 <div class="pane" on:click|self={() => toggleModalManualSelect()}>
   <div class="btnControlDate">
     <Button
@@ -476,7 +508,16 @@
       }}>
       👈🏻
     </Button>
-
+    <div class="btn-resfresh">
+    <Button
+      type="secondary"
+      inverse={true}
+      on:click={() => {
+        doPost(`${dataInicial.toLocaleDateString('pt-br')}-${dataFinal.toLocaleDateString('pt-br')}`);
+      }}>
+      🔄
+    </Button>
+  </div>
     {#if dataFinal.getMonth() == dataInicial.getMonth()}
       <div class="periodo">
         <h2>
@@ -533,7 +574,7 @@
                 <Button
                   type="primary"
                   hidden={!timestamp}
-                  on:click={deletarPeriodo}>
+                  on:click={toggleModal}>
                   Deletar
                 </Button>
               </div>

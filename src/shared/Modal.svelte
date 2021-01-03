@@ -5,6 +5,7 @@
 {#if showModal}
   <div class="backdrop" on:click|self >
     <div class="modal"  >
+      <br>
       <slot name="title" >
         <h3>Adicionar Irmão</h3>
       </slot>
@@ -15,9 +16,11 @@
 
 <style>
   .backdrop{
+    top: 0px;
+    left: 0px;
     width: 100%;
     height: 100%;
-    position: fixed;
+    position: absolute;
     background: rgba(0,0,0,0.8);
     z-index: 50;
   }
@@ -25,7 +28,7 @@
     padding: 5px;
     border-radius: 10px;
     width: 400px;
-    margin: 0% auto;;
+    margin: 0% auto;
     text-align: center;
     background: white;
     position: absolute;

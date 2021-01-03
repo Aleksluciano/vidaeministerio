@@ -59,8 +59,14 @@
       
       if (a) {
       
-        irmaos = a;
-       
+        irmaos = [...a];
+        irmaos.sort((a, b) =>
+          a.nome < b.nome
+            ? -1
+            : a.nome > b.nome
+            ? 1
+            : 0
+        );
       }
     });
   };
@@ -247,7 +253,7 @@ const updatePersonAfterDesignation = (irmao,reverse) => {
     textSnack = snText;
     colorSnack = color;
     showSnack = true;
-    setTimeout((_) => (showSnack = false), 6000);
+    setTimeout((_) => (showSnack = false), 3000);
   };
 
   onDestroy(() => {
