@@ -10,6 +10,8 @@
   import { db } from "../../firebase";
   import Modal  from "../shared/Modal.svelte";
   import PopupConfirm from "../shared/PopupConfirm.svelte";
+  import { Arquivos } from './Arquivos';
+ 
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -44,6 +46,8 @@
   let designacaoPeriodo;
   let data = [];
   let timestamp = null;
+ 
+
   const periodoRef = db.collection("periodoRef");
 
   const embaralha = (data) => {
@@ -276,6 +280,12 @@
   let showModal = false;
   const toggleModal = () =>{
     showModal = !showModal
+  }
+
+  const montarArquivos = () => {
+
+    new Arquivos(designacaoPeriodo.grupos,dataInicial,dataFinal);
+     
   }
 
   doPost(montaDataProxima());
@@ -569,7 +579,7 @@
                   Salvar
                 </Button>
 
-                <Button type="yellow" hidden={!timestamp}>Arquivos</Button>
+                <Button type="yellow" hidden={!timestamp} on:click={montarArquivos}>Arquivos</Button>
 
                 <Button
                   type="primary"

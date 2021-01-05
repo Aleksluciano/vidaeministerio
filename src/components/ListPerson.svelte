@@ -110,20 +110,24 @@
     border: solid black 1px;
     box-shadow: 0 0 0 4px #838181;
   }
+
+  .tabela-titulos{
+border: black 2px solid;
+  }
 </style>
 
 <div class="pane">
   <table>
     <thead>
-      <tr>
-        <th on:click={sort('situacao')}>St</th>
-        <th on:click={sort('nome')}>Nome</th>
-        <th on:click={sort('sexo')}>Sexo</th>
-        <th on:click={sort('privilegio')}>Privilégio</th>
-        <th on:click={sort('grupo')}>Grupo</th>
-        <th on:click={sort('parte')}>Parte</th>
-        <th on:click={sort('data')}>Data</th>
-        <th>Funções</th>
+      <tr class="tabela-titulos">
+        <th class="tabela-titulos" on:click={sort('situacao')}>St</th>
+        <th class="tabela-titulos" on:click={sort('nome')}>Nome</th>
+        <th class="tabela-titulos" on:click={sort('sexo')}>Sexo</th>
+        <th class="tabela-titulos" on:click={sort('privilegio')}>Privilégio</th>
+        <th class="tabela-titulos" on:click={sort('grupo')}>Grupo</th>
+        <th class="tabela-titulos" on:click={sort('parte')}>Parte</th>
+        <th class="tabela-titulos" on:click={sort('data')}>Data</th>
+        <th class="tabela-titulos">Funções</th>
       </tr>
     </thead>
     <tbody>
