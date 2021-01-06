@@ -688,7 +688,6 @@
   {:else if pronto && ( designacaoPeriodo?.grupos.length <= 0 || !designacaoPeriodo )}
     <p>Aconteceu algum erro!!!</p>
   {:else}
-  <span>pronto</span><span>{ designacaoPeriodo?.grupos }</span>
     <Spinner />
   {/if}
 </div>
