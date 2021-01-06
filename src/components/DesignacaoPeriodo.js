@@ -65,7 +65,7 @@ export class DesignacaoPeriodo {
             a.siglaParte = "D";
             a.vaga1 = this.procuraIrmao("D", x.nomeGrupo, "M");
           }
-          if (a.titulo.toLowerCase().match("conversa")) {
+          if (a.titulo.toLowerCase().match("conversa") || a.titulo.toLowerCase().match("convite")) {
             a.siglaParte = "C";
             a.vaga1 = this.procuraIrmao("C", x.nomeGrupo);
             if(a.vaga1.nome !== "⚡")

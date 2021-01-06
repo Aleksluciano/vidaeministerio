@@ -1,4 +1,4 @@
-const functions = require('firebase-functions');
+const functions = require("firebase-functions");
 //const admin = require("firebase-admin");
 //  const serviceAccount = require("../systemkey.json")
 const axios = require("axios");
@@ -16,24 +16,21 @@ const HTMLParser = require("node-html-parser");
 //admin.initializeApp(functions.config().firebase);
 //firebase.initializeApp(firebaseConfig);
 
-exports.jw = functions.region('southamerica-east1').https.onCall(async (data, context) => {
-  
-  let dados = [];
-
-  try {
-  
-    dados = await pegaInformacaoNoSiteJW(data.data);
-  } catch (e) {
- 
-    return {
-      status: 400,
-      message: "This is an error in pegaInformacaoNoSiteJW()",
-    };
-  }
-  return { dados };
-});
-
-
+exports.jw = functions
+  .region("southamerica-east1")
+  .https.onCall(async (data, context) => {
+    let dados = [];
+    console.log(data);
+    try {
+      dados = await pegaInformacaoNoSiteJW(data.data);
+    } catch (e) {
+      return {
+        status: 400,
+        message: "This is an error in pegaInformacaoNoSiteJW()",
+      };
+    }
+    return { dados };
+  });
 
 const axiosConfig = {
   headers: {
@@ -85,7 +82,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
   const dataFinal = new DataFinal(periodo);
 
   const urlPartes = definirUrlPartes(dataInicial, dataFinal);
- 
+
   try {
     let partes = extrairNomeDeCadaParte(
       dataInicial.ano,
@@ -103,9 +100,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
 
     partes.push({ url: urlPartes, figura: figura });
     return partes;
-  } catch (e) {
-   
-  }
+  } catch (e) {}
 
   return [];
 };
@@ -121,23 +116,52 @@ const definirUrlPartes = (dataInicial, dataFinal) => {
     if (dataInicial.mes !== dataFinal.mes)
       return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
   } else {
-    if (dataInicial.indiceMes % 2 == 0)
+    let mes;
+
+    if (dataInicial.indiceMes % 2 == 0) {
+      mes = dataInicial.mesSemAcento;
+      if (mes == "marco") mes = "mar%C3%A7o";
       dataInicial.mesSemAcento = meses[dataInicial.indiceMes - 1];
-    else {
+    } else {
+      mes = dataFinal.mesSemAcento;
+      if (mes == "marco") mes = "mar%C3%A7o";
       dataFinal.mesSemAcento = meses[dataInicial.indiceMes + 1];
     }
-    return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+
+    console.log("1", dataInicial, dataFinal);
+    if (dataInicial.mes !== dataFinal.mes) {
+      if (dataInicial.mesSemAcento == "marco") mes = "mar%C3%A7o";
+      if (dataInicial.mesSemAcento == "março")
+        dataInicial.mesSemAcento = "marco";
+      if (dataFinal.indiceMes % 2 != 0) dataFinal.mesSemAcento = mes;
+      return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    }
+
+    if (dataInicial.mesSemAcento == "março") dataInicial.mesSemAcento = "marco";
+    console.log("2", dataInicial, dataFinal);
+    return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
   }
 };
 
 const extrairNomeDeCadaParte = (anoini, parte) => {
   if (anoini == "2020")
     return [parte("#p14"), parte("#p16"), parte("#p17"), parte("#p18")];
-  return [parte("#p10"), parte("#p12"), parte("#p13"), parte("#p14")];
+  return [
+    parte("#p10"),
+    parte("#p12"),
+    parte("#p13"),
+    parte("#p14"),
+    parte("#p15"),
+  ];
 };
 const buscarPartesEParsear = async (url) => {
-  const res = await axios.get(url, axiosConfig);
-  return HTMLParser.parse(res.data);
+  try {
+    const res = await axios.get(url, axiosConfig);
+    return HTMLParser.parse(res.data);
+  } catch (e) {
+    console.log("erro", e.message, e.request);
+    return " ";
+  }
 };
 
 const definirUrlFigura = (mesini, mesfim, anoini) => {
@@ -147,15 +171,20 @@ const definirUrlFigura = (mesini, mesfim, anoini) => {
 };
 
 const buscarFigura = async (url) => {
-  const res = await axios.get(url, axiosConfig);
-  return HTMLParser.parse(res.data);
+  try {
+    const res = await axios.get(url, axiosConfig);
+    return HTMLParser.parse(res.data);
+  } catch (e) {
+    console.log("erro", e.message, e.request);
+    return " ";
+  }
 };
 
 const disponibilizarPartes = (root) => {
   return (target) => {
     const data = root.querySelector(target);
     const info = data.querySelector("strong");
-    return info.toString();
+    return info?.toString();
   };
 };
 

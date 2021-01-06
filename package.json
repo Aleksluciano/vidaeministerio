@@ -19,11 +19,9 @@
   },
   "dependencies": {
     "@pdf-lib/standard-fonts": "^1.0.0",
-    "file-saver": "^2.0.5",
     "firebase": "^8.2.0",
     "firebase-admin": "^9.4.2",
     "firebase-functions": "^3.13.0",
-    "fs-web": "^1.0.1",
     "pdf-lib": "^1.14.1",
     "rxfire": "^4.0.0",
     "rxjs": "^6.6.3",

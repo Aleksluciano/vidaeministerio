@@ -11,6 +11,7 @@
   import Modal  from "../shared/Modal.svelte";
   import PopupConfirm from "../shared/PopupConfirm.svelte";
   import { Arquivos } from './Arquivos';
+
  
 
   export let gruposNumero = [];
@@ -61,17 +62,28 @@
 
   const getDataUrlJw = async (params) => {
     try {
-      //res = await fetch("http://localhost:5001/jw?" + params, myInit);
+      console.log(params)
+      const res = await fetch("http://localhost:3000/jw?data=" + params);
+      let dadosjs = await res.json();
+      dadosjs = dadosjs.data;
+      console.log(dadosjs);
 
-      const res = await callFirebaseFnJw({ data: params });
-
-      const dadosjs = res.data.dados; // get info layout from jw site
+      //const res = await callFirebaseFnJw({ data: params });
+      //const dadosjs = res.data.dados; // get info layout from jw site
+      dadosjs = dadosjs.filter(a => a !== null);
+    
+   
       if (dadosjs.length > 0) {
-        let dados = dadosjs.splice(4, 1);
-
+        let dados = dadosjs.splice(dadosjs.length -1, 1);
+        console.log("lele",dadosjs)
+        let discurso10Index = dadosjs.findIndex(a => a.toLowerCase().match('<strong>“</strong>'));
+        if(discurso10Index >= 0)dadosjs[discurso10Index] = '<strong>Discurso 10min</strong>';
+        dadosjs = dadosjs.filter(a => !a.toLowerCase().match('cântico'));
+        console.log(dadosjs)
         imagemjw = dados[0].figura;
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
+        console.log(partesjw)
         const infJw = { imagemjw, linksitejw, partesjw };
 
         embaralha(irmaos);
@@ -130,7 +142,7 @@
     if (!firstLoad) {
       if (
         dataInicial.getTime() <
-        new Date().getTime() + 3600 * 24 * 40 * 1000
+        new Date().getTime() + 3600 * 24 * 150 * 1000
       ) {
         //avoid go forward more than 30 days
         dataInicial = new Date(dataInicial.getTime() + 3600 * 24 * 7 * 1000);
@@ -150,7 +162,7 @@
   };
 
   const montaDataAnterior = () => {
-    if (dataInicial.getTime() > new Date().getTime() + 3600 * 24 * -30 * 1000) {
+    if (dataInicial.getTime() > new Date().getTime() + 3600 * 24 * -50 * 1000) {
       //avoid go back more than 30 days
       dataInicial = new Date(dataInicial.getTime() + 3600 * 24 * -7 * 1000);
       dataFinal = new Date(dataInicial.getTime() + 3600 * 24 * 6 * 1000);
@@ -282,11 +294,15 @@
     showModal = !showModal
   }
 
+
   const montarArquivos = () => {
 
     new Arquivos(designacaoPeriodo.grupos,dataInicial,dataFinal);
-     
-  }
+
+ 
+  
+}
+  
 
   doPost(montaDataProxima());
 </script>
@@ -669,9 +685,10 @@
         {/each}
       </table>
     </div>
-  {:else if pronto && designacaoPeriodo?.grupos.length <= 0}
+  {:else if pronto && ( designacaoPeriodo?.grupos.length <= 0 || !designacaoPeriodo )}
     <p>Aconteceu algum erro!!!</p>
   {:else}
+  <span>pronto</span><span>{ designacaoPeriodo?.grupos }</span>
     <Spinner />
   {/if}
 </div>
