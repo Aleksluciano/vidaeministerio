@@ -69,7 +69,7 @@
       // console.log(dadosjs);
 
       const res = await callFirebaseFnJw({ data: params });
-      const dadosjs = res.data.dados; // get info layout from jw site
+      let dadosjs = res.data.dados; // get info layout from jw site
       dadosjs = dadosjs.filter(a => a !== null);
     
    
