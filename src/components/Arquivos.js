@@ -299,7 +299,7 @@ export class Arquivos {
           }
         }
 
-        this.pdfBytes2 = await await pdfDoc.save();
+        this.pdfBytes2 = await pdfDoc.save();
 
         let a = document.createElement("a");
         a.download = `${arqnome}.pdf`;
