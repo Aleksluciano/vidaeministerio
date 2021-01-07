@@ -65,19 +65,47 @@ export class DesignacaoPeriodo {
             a.siglaParte = "D";
             a.vaga1 = this.procuraIrmao("D", x.nomeGrupo, "M");
           }
-          if (a.titulo.toLowerCase().match("conversa") || a.titulo.toLowerCase().match("convite")) {
+          if (
+            a.titulo.toLowerCase().match("conversa") ||
+            a.titulo.toLowerCase().match("convite")
+          ) {
             a.siglaParte = "C";
+            a.vaga2 = { nome: "⚡" };
+
             a.vaga1 = this.procuraIrmao("C", x.nomeGrupo);
-            if(a.vaga1.nome !== "⚡")
-            a.vaga2 = this.procuraIrmao(
-              "A",
-              x.nomeGrupo,
-              a.vaga1.sexo,
-              a.vaga1.privilegio
-            );
-            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
-              a.vaga1 = this.procuraIrmao("C", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
-              if(a.vaga1.nome !== "⚡")
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga2 = this.procuraIrmao("A", x.nomeGrupo, a.vaga1.sexo, "E");
+
+            if (a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao(
+                "C",
+                x.nomeGrupo,
+                this.inverteSexo(a.vaga1.sexo)
+              );
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga1 = this.procuraIrmao("C", x.nomeGrupo, a.vaga1.sexo, "E");
+            if (a.vaga1.nome !== "⚡")
               a.vaga2 = this.procuraIrmao(
                 "A",
                 x.nomeGrupo,
@@ -85,21 +113,49 @@ export class DesignacaoPeriodo {
                 a.vaga1.privilegio
               );
             }
-            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
+              if (a.vaga1.nome == "⚡"){
+                a.vaga1 = { nome: "⚡" };
+                a.vaga2 = { nome: "⚡" };
+              }
           }
           if (a.titulo.toLowerCase().match("estudo")) {
             a.siglaParte = "E";
+            a.vaga2 = { nome: "⚡" };
+            
             a.vaga1 = this.procuraIrmao("E", x.nomeGrupo);
-            if(a.vaga1.nome !== "⚡")
-            a.vaga2 = this.procuraIrmao(
-              "A",
-              x.nomeGrupo,
-              a.vaga1.sexo,
-              a.vaga1.privilegio
-            );
-            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
-              a.vaga1 = this.procuraIrmao("E", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
-              if(a.vaga1.nome !== "⚡")
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga2 = this.procuraIrmao("A", x.nomeGrupo, a.vaga1.sexo, "E");
+
+            if (a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao(
+                "E",
+                x.nomeGrupo,
+                this.inverteSexo(a.vaga1.sexo)
+              );
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga1 = this.procuraIrmao("E", x.nomeGrupo, a.vaga1.sexo, "E");
+            if (a.vaga1.nome !== "⚡")
               a.vaga2 = this.procuraIrmao(
                 "A",
                 x.nomeGrupo,
@@ -107,21 +163,50 @@ export class DesignacaoPeriodo {
                 a.vaga1.privilegio
               );
             }
-            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
+              if (a.vaga1.nome == "⚡"){
+                a.vaga1 = { nome: "⚡" };
+                a.vaga2 = { nome: "⚡" };
+              }
+
           }
           if (a.titulo.toLowerCase().match("revisita")) {
             a.siglaParte = "R";
+            a.vaga2 = { nome: "⚡" };
+            
             a.vaga1 = this.procuraIrmao("R", x.nomeGrupo);
-            if(a.vaga1.nome !== "⚡")
-            a.vaga2 = this.procuraIrmao(
-              "A",
-              x.nomeGrupo,
-              a.vaga1.sexo,
-              a.vaga1.privilegio
-            );
-            if(a.vaga1.nome !== "⚡" && a.vaga2.nome == "⚡"){
-              a.vaga1 = this.procuraIrmao("R", x.nomeGrupo, this.inverteSexo(a.vaga1.sexo));
-              if(a.vaga1.nome !== "⚡")
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga2 = this.procuraIrmao("A", x.nomeGrupo, a.vaga1.sexo, "E");
+
+            if (a.vaga2.nome == "⚡"){
+              a.vaga1 = this.procuraIrmao(
+                "R",
+                x.nomeGrupo,
+                this.inverteSexo(a.vaga1.sexo)
+              );
+            if (a.vaga1.nome !== "⚡")
+              a.vaga2 = this.procuraIrmao(
+                "A",
+                x.nomeGrupo,
+                a.vaga1.sexo,
+                a.vaga1.privilegio
+              );
+            
+            if (
+              a.vaga1.nome !== "⚡" &&
+              a.vaga2.nome == "⚡" &&
+              a.vaga1.privilegio == "E"
+            )a.vaga1 = this.procuraIrmao("R", x.nomeGrupo, a.vaga1.sexo, "E");
+            if (a.vaga1.nome !== "⚡")
               a.vaga2 = this.procuraIrmao(
                 "A",
                 x.nomeGrupo,
@@ -129,9 +214,16 @@ export class DesignacaoPeriodo {
                 a.vaga1.privilegio
               );
             }
-            if(a.vaga1.nome == "⚡")a.vaga2 = a.vaga1;
+              if (a.vaga1.nome == "⚡"){
+                a.vaga1 = { nome: "⚡" };
+                a.vaga2 = { nome: "⚡" };
+              }
+
           }
         }
+        //if (!a.vaga1)a.vaga1 = { nome: "⚡" };
+    
+        //if(a.vaga1.nome && !a.vaga2)a.vaga1 = { nome: "⚡" };
       });
     });
   }
@@ -155,6 +247,7 @@ export class DesignacaoPeriodo {
       pessoas = this.filtraApenasPublicadores(pessoas);
     if (this.notEmpty(pessoas))
       pessoa = this.filtraPrimeiraPessoaAdequada(pessoas);
+
     if (!pessoa) pessoa = { nome: "⚡" };
     return { ...pessoa };
   }
@@ -211,7 +304,7 @@ export class DesignacaoPeriodo {
 
   substituicao(data) {
     let pessoas = [...this.irmaos];
-   
+
     if (this.notEmpty(pessoas))
       pessoas = this.filtraAtivadasParaEscalar(this.pessoas);
     if (this.notEmpty(pessoas))
@@ -225,8 +318,8 @@ export class DesignacaoPeriodo {
         sexo = "M";
       } else {
         //if (data.irmao.nome !== "⚡") sexo = data.irmao.sexo;
-        if (data.irmao2.nome !== "⚡")sexo = data.irmao2.sexo;
-       //   if(data.irmao2.nome == "⚡")
+        if (data.irmao2.nome !== "⚡") sexo = data.irmao2.sexo;
+        //   if(data.irmao2.nome == "⚡")
       }
       if (sexo) pessoas = this.filtraDoMesmoSexo(pessoas, sexo);
     }
@@ -248,12 +341,20 @@ export class DesignacaoPeriodo {
           a.titulo == data.titulo
         ) {
           if (data.position == 1) {
-            if(a.vaga1.id && !this.reverseIrmaos.find(z => z.id == a.vaga1.id))this.reverseIrmaos.push({...a.vaga1})
+            if (
+              a.vaga1.id &&
+              !this.reverseIrmaos.find((z) => z.id == a.vaga1.id)
+            )
+              this.reverseIrmaos.push({ ...a.vaga1 });
             a.vaga1 = { ...newirmao };
             achou = true;
           }
           if (data.position == 2) {
-            if(a.vaga2.id && !this.reverseIrmaos.find(z => z.id == a.vaga2.id))this.reverseIrmaos.push({...a.vaga2})
+            if (
+              a.vaga2.id &&
+              !this.reverseIrmaos.find((z) => z.id == a.vaga2.id)
+            )
+              this.reverseIrmaos.push({ ...a.vaga2 });
             a.vaga2 = { ...newirmao };
             achou = true;
           }
@@ -267,9 +368,12 @@ export class DesignacaoPeriodo {
     let irmaosUp = [];
     this.grupos.forEach((x) => {
       x.partes.forEach((a) => {
-     
-        if (a.vaga1 && a.vaga1.nome != "⚡"){ irmaosUp.push({...a.vaga1});}
-        if (a.vaga2 && a.vaga2.nome != "⚡"){ irmaosUp.push({...a.vaga2});}
+        if (a.vaga1 && a.vaga1.nome != "⚡") {
+          irmaosUp.push({ ...a.vaga1 });
+        }
+        if (a.vaga2 && a.vaga2.nome != "⚡") {
+          irmaosUp.push({ ...a.vaga2 });
+        }
       });
     });
     this.irmaosUp = [...irmaosUp];
@@ -282,8 +386,8 @@ export class DesignacaoPeriodo {
   setDataInicial(dataInicial) {
     this.dataInicial = dataInicial;
   }
-  inverteSexo(sexo){
-    if(sexo == 'F')return 'M';
-    if(sexo == 'M')return 'F'
+  inverteSexo(sexo) {
+    if (sexo == "F") return "M";
+    if (sexo == "M") return "F";
   }
 }

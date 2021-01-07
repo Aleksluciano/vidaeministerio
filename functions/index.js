@@ -183,8 +183,10 @@ const buscarFigura = async (url) => {
 const disponibilizarPartes = (root) => {
   return (target) => {
     const data = root.querySelector(target);
+    console.log(data);
     const info = data.querySelector("strong");
-    return info?.toString();
+    if(!info)return null;
+    return info.toString();
   };
 };
 
