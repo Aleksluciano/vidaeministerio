@@ -71,19 +71,19 @@
       const res = await callFirebaseFnJw({ data: params });
       let dadosjs = res.data.dados; // get info layout from jw site
       dadosjs = dadosjs.filter(a => a !== null);
-      console.log(res)
+     
    
       if (dadosjs.length > 0) {
         let dados = dadosjs.splice(dadosjs.length -1, 1);
-        console.log("lele",dadosjs)
+      
         let discurso10Index = dadosjs.findIndex(a => a.toLowerCase().match('<strong>“</strong>'));
         if(discurso10Index >= 0)dadosjs[discurso10Index] = '<strong>Discurso 10min</strong>';
         dadosjs = dadosjs.filter(a => !a.toLowerCase().match('cântico'));
-        console.log(dadosjs)
+      
         imagemjw = dados[0].figura;
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
-        console.log(partesjw)
+      
         const infJw = { imagemjw, linksitejw, partesjw };
 
         embaralha(irmaos);
