@@ -39,7 +39,7 @@
 
   const gruposRef = db.collection("gruposNumero");
   const irmaosRef = db.collection("irmaos");
- 
+
   let unsubscribeGrupos;
   let unsubscribeIrmaos;
   let unsubscribeUser;
@@ -56,17 +56,9 @@
     });
 
     unsubscribeIrmaos = collectionData(irmaosRef, "id").subscribe((a) => {
-      
       if (a) {
-      
         irmaos = [...a];
-        irmaos.sort((a, b) =>
-          a.nome < b.nome
-            ? -1
-            : a.nome > b.nome
-            ? 1
-            : 0
-        );
+        irmaos.sort((a, b) => (a.nome < b.nome ? -1 : a.nome > b.nome ? 1 : 0));
       }
     });
   };
@@ -165,7 +157,7 @@
       irmao = {
         ...e.detail,
       };
-   
+
       formTitle = "Editar Irmão";
     }
 
@@ -186,34 +178,38 @@
     showModal = !showModal;
   };
 
-const updateIrmaoData = (irmao,reverse) =>{
-
-    const partesPorPrivilegio = partesPrivilegios.find(a => a.sexo == irmao.sexo && a.privilegio == irmao.privilegio);
+  const updateIrmaoData = (irmao, reverse) => {
+    const partesPorPrivilegio = partesPrivilegios.find(
+      (a) => a.sexo == irmao.sexo && a.privilegio == irmao.privilegio
+    );
     const quantidadeDePartes = partesPorPrivilegio.items.length;
     const maximoIndice = quantidadeDePartes - 1;
     const inicioIndice = 0;
-    
-    irmao.indiceParte = partesPorPrivilegio.items.findIndex(b => b == irmao.parte);
- 
-    if (irmao.indiceParte == maximoIndice || irmao.indiceParte == inicioIndice)irmao.indiceProximaParte = 1;
+
+    irmao.indiceParte = partesPorPrivilegio.items.findIndex(
+      (b) => b == irmao.parte
+    );
+
+    if (irmao.indiceParte == maximoIndice || irmao.indiceParte == inicioIndice)
+      irmao.indiceProximaParte = 1;
     else irmao.indiceProximaParte = irmao.indiceParte + 1;
 
     irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte];
-    return irmao
-}
+    return irmao;
+  };
 
-const updatePersonAfterDesignation = (irmao,reverse) => {
-  if(!reverse){
-  irmao.parte = irmao.proximaParte;
-  }
-  irmao = updateIrmaoData(irmao,reverse);
-  irmaosRef.doc(irmao.id).update(irmao);
-}
+  const updatePersonAfterDesignation = (irmao, reverse) => {
+    if (!reverse) {
+      irmao.parte = irmao.proximaParte;
+    }
+    irmao = updateIrmaoData(irmao, reverse);
+    irmaosRef.doc(irmao.id).update(irmao);
+  };
 
   const addPerson = (e) => {
     let irmao = e.detail;
     irmao.parteAnterior = irmao.parte;
-    irmao = updateIrmaoData(irmao)
+    irmao = updateIrmaoData(irmao);
     if (!irmao.id) irmaosRef.add(irmao);
     else irmaosRef.doc(irmao.id).update(irmao);
     showModal = !showModal;
@@ -278,9 +274,25 @@ const updatePersonAfterDesignation = (irmao,reverse) => {
     margin: 5px auto;
   }
 
+  .componentsOp {
+    display: flex;
+    width: 100%;
+  }
+  .filterAndAddButton {
+  }
+  .total {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+    flex: 1;
+    margin-right: 3%;
+    font-weight: 500;
+  }
   .operation-buttons {
     display: flex;
     justify-content: space-between;
+    flex:1
   }
 
   h3 {
@@ -330,15 +342,20 @@ const updatePersonAfterDesignation = (irmao,reverse) => {
 
     {#if activeItem == 'Irmãos'}
       <div in:fly={{ y: 300, duration: 1000 }}>
-        <Button
-          type="secondary"
-          inverse={true}
-          on:click={() => {
-            toggleModal('add');
-          }}>
-          + Irmão
-        </Button>
-        <input placeholder="filtra nome" bind:value={iniciais} />
+        <div class="componentsOp">
+          <div class="filterAndAddButton">
+            <Button
+              type="secondary"
+              inverse={true}
+              on:click={() => {
+                toggleModal('add');
+              }}>
+              + Irmão
+            </Button>
+            <input placeholder="filtra nome" bind:value={iniciais} />
+          </div>
+          <span class="total">Total: {filteredIrmaos.length}</span>
+        </div>
         <ListPerson
           {partesPrivilegios}
           irmaos={filteredIrmaos}
@@ -356,12 +373,11 @@ const updatePersonAfterDesignation = (irmao,reverse) => {
     {:else if activeItem == 'Designações'}
       <div in:fly={{ y: 300, duration: 1000 }}>
         <Designation
-        on:updatePerson={(e) => updatePersonAfterDesignation(e.detail)}
-        on:updateReverse={(e) => updatePersonAfterDesignation(e.detail.irmao,e.detail.reverse)}
+          on:updatePerson={(e) => updatePersonAfterDesignation(e.detail)}
+          on:updateReverse={(e) => updatePersonAfterDesignation(e.detail.irmao, e.detail.reverse)}
           {irmaos}
           {gruposNumero}
-          on:snack={(e) =>snackData(e.detail.color, e.detail.text)}
-          />
+          on:snack={(e) => snackData(e.detail.color, e.detail.text)} />
       </div>
     {/if}
   </main>
