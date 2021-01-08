@@ -31,6 +31,27 @@
 
     irmaos = irmaos.sort(sort);
   };
+
+    $: mySort = (column) => {
+    if (sortBy.col == column) {
+      sortBy.ascending = !sortBy.ascending;
+    } else {
+      sortBy.col = column;
+      sortBy.ascending = true;
+    }
+
+    // Modifier to sorting function for ascending or descending
+    let sortModifier = sortBy.ascending ? 1 : -1;
+
+    let sort = (a, b) =>{
+      return new Date(a[column].substr(6),a[column].substr(3,2),a[column].substr(0,2)) < new Date(b[column].substr(6),b[column].substr(3,2),b[column].substr(0,2))
+        ? -1 * sortModifier
+        :  new Date(a[column].substr(6),a[column].substr(3,2),a[column].substr(0,2)) > new Date(b[column].substr(6),b[column].substr(3,2),b[column].substr(0,2))
+        ? 1 * sortModifier
+        : 0;
+    }
+    irmaos = irmaos.sort(sort);
+  };
   const privilegios = [
     { sigla: "E", privilegio: "Estudante" },
     { sigla: "P", privilegio: "Publicador" },
@@ -126,7 +147,7 @@ border: black 2px solid;
         <th class="tabela-titulos" on:click={sort('privilegio')}>Privilégio</th>
         <th class="tabela-titulos" on:click={sort('grupo')}>Grupo</th>
         <th class="tabela-titulos" on:click={sort('parte')}>Parte</th>
-        <th class="tabela-titulos" on:click={sort('data')}>Data</th>
+        <th class="tabela-titulos" on:click={mySort('data')}>Data</th>
         <th class="tabela-titulos">Funções</th>
       </tr>
     </thead>
