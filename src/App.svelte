@@ -194,7 +194,7 @@
       irmao.indiceProximaParte = 1;
     else irmao.indiceProximaParte = irmao.indiceParte + 1;
 
-    irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte];
+    irmao.proximaParte = partesPorPrivilegio.items[irmao.indiceProximaParte] || "";
     return irmao;
   };
 

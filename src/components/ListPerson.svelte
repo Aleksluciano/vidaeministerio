@@ -72,7 +72,7 @@
     { sigla: "R", parte: "Revisita" },
   ];
   const siglaParte = (sigla) => {
-    return partes.find((a) => a.sigla == sigla?.substring(2)).parte;
+    return partes.find((a) => a.sigla == sigla?.substring(2))?.parte || "";
    
 	};
 </script>

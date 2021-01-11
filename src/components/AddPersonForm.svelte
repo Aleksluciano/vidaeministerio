@@ -203,10 +203,12 @@ import { subscribe } from "svelte/internal";
         </label>
       </div>
     </div>
+    {#if irmao.privilegio != 'A' && irmao.privilegio != 'S'}
     <p class:green={validaIndiceParte}>
       Última parte
       <span>{irmao.parte ? '✔' : ''}</span>
     </p>
+    {/if}
     <div>
       {#if irmao.sexo && irmao.privilegio}
         {#each partesPrivilegios as parte}
@@ -226,9 +228,12 @@ import { subscribe } from "svelte/internal";
             {/each}
           {/if}
         {/each}
+        
       {/if}
     </div>
   </div>
+
+  {#if irmao.privilegio != 'A' && irmao.privilegio != 'S'}
   <DatePicker
     on:datechange={onDateChange}
     selected={currentDate}
@@ -244,7 +249,7 @@ import { subscribe } from "svelte/internal";
     Escalar
   </label>
   <div />
-
+{/if}
   <div class="btnPosition">
     <Button type="secondary" disabled={!checkFormFill}>Salvar</Button>
   </div>
