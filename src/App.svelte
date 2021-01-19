@@ -178,7 +178,7 @@
     showModal = !showModal;
   };
 
-  const updateIrmaoData = (irmao, reverse) => {
+  const updateIrmaoData = (irmao) => {
     const partesPorPrivilegio = partesPrivilegios.find(
       (a) => a.sexo == irmao.sexo && a.privilegio == irmao.privilegio
     );
@@ -199,10 +199,15 @@
   };
 
   const updatePersonAfterDesignation = (irmao, reverse) => {
+     //só avança parte se a pessoa não for substituida
     if (!reverse) {
       irmao.parte = irmao.proximaParte;
     }
-    irmao = updateIrmaoData(irmao, reverse);
+
+    //só atualiza proxima parte pra publicador e estudante
+    if(irmao.privilegio !== 'A' && irmao.privilegio !== 'S')
+    irmao = updateIrmaoData(irmao);
+
     irmaosRef.doc(irmao.id).update(irmao);
   };
 
@@ -373,8 +378,7 @@
     {:else if activeItem == 'Designações'}
       <div in:fly={{ y: 300, duration: 1000 }}>
         <Designation
-          on:updatePerson={(e) => updatePersonAfterDesignation(e.detail)}
-          on:updateReverse={(e) => updatePersonAfterDesignation(e.detail.irmao, e.detail.reverse)}
+          on:updatePerson={(e) => updatePersonAfterDesignation(e.detail.irmao, e.detail.reverse)}
           {irmaos}
           {gruposNumero}
           on:snack={(e) => snackData(e.detail.color, e.detail.text)} />

@@ -2,7 +2,6 @@
   import Button from "../shared/Button.svelte";
   import DatePicker from "../shared/date/DatePicker.svelte";
   import { createEventDispatcher } from "svelte";
-import { subscribe } from "svelte/internal";
 
   export let irmao = {
     nome: "",
@@ -15,6 +14,7 @@ import { subscribe } from "svelte/internal";
     proximaParte: "",
     data: "",
     situacao: true,
+    salaB: false,
   };
   export let partesPrivilegios = [];
 
@@ -243,12 +243,17 @@ import { subscribe } from "svelte/internal";
       if (millisecs > Date.now() + 3600 * 24 * 45 * 1000) return false;
       return true;
     }} />
-  <p class:green={true}>Situação <span>{checkFormFill ? '✔' : ''}</span></p>
+      <p class:green={true}>Sala Exclusiva <span>{'✔'}</span></p>
+      <label>
+        <input type="checkbox" bind:checked={irmao.salaB} />
+        Sala B
+      </label>
+  <p class:green={true}>Situação <span>{'✔'}</span></p>
   <label>
     <input type="checkbox" bind:checked={irmao.situacao} />
     Escalar
   </label>
-  <div />
+ 
 {/if}
   <div class="btnPosition">
     <Button type="secondary" disabled={!checkFormFill}>Salvar</Button>

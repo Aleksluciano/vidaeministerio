@@ -239,7 +239,7 @@
           dispatch("snack", { color: "green", text: "Período removido" });
           if (irmaosForUpdate.length >= 0) {
             irmaosForUpdate.forEach((t) => {
-              dispatch("updateReverse", { irmao: t, reverse: true });
+              dispatch("updatePerson", { irmao: t.irmaoEscalado, reverse: true });
             });
           }
           doPost(
@@ -266,17 +266,17 @@
           dispatch("snack", { color: "green", text: "Período Salvo" });
           let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
           if (irmaosForUpdate.length >= 0) {
-            if (!timestamp)
+            //if (!timestamp)
               irmaosForUpdate.forEach((a) => {
-                a.data = designacaoPeriodo.dataInicial.toLocaleDateString(
+                a.irmaoEscalado.data = designacaoPeriodo.dataInicial.toLocaleDateString(
                   "pt-BR"
                 );
-                dispatch("updatePerson", a);
+                dispatch("updatePerson", { irmao: a.irmaoEscalado, reverse: a.parteDiferente });
               });
             if (designacaoPeriodo.reverseIrmaos.length >= 0) {
               designacaoPeriodo.reverseIrmaos.forEach((t) => {
-                if (!irmaosForUpdate.find((g) => g.id == t.id)) {
-                  dispatch("updateReverse", { irmao: t, reverse: true });
+                if (!irmaosForUpdate.find((g) => g.irmaoEscalado.id == t.id)) {
+                  dispatch("updatePerson", { irmao: t, reverse: true });
                 }
               });
             }
