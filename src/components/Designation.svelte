@@ -62,14 +62,14 @@
 
   const getDataUrlJw = async (params) => {
     try {
-      console.log(params)
-      const res = await fetch("http://localhost:3000/jw?data=" + params);
-      let dadosjs = await res.json();
-      dadosjs = dadosjs.data;
-      console.log(dadosjs);
+      // console.log(params)
+      // const res = await fetch("http://localhost:3000/jw?data=" + params);
+      // let dadosjs = await res.json();
+      // dadosjs = dadosjs.data;
+      // console.log(dadosjs);
 
-      // const res = await callFirebaseFnJw({ data: params });
-      // let dadosjs = res.data.dados; // get info layout from jw site
+       const res = await callFirebaseFnJw({ data: params });
+       let dadosjs = res.data.dados; // get info layout from jw site
       
        dadosjs = dadosjs.filter(a => a !== null);
      
