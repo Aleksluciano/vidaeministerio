@@ -76,16 +76,15 @@ class DataFinal {
 }
 
 const pegaInformacaoNoSiteJW = async (periodo) => {
-  const dataInicial = new DataInicial(periodo);
-  const dataFinal = new DataFinal(periodo);
+  let dataInicial = new DataInicial(periodo);
+  let dataFinal = new DataFinal(periodo);
 
-  const urlPartes = definirUrlPartes(dataInicial, dataFinal);
-  console.log(urlPartes)
+  let urlPartes = definirUrlPartes(dataInicial, dataFinal,1);
+
   try {
-    let datajw = await buscarPartesEParsear(urlPartes);
     let partes = extrairNomeDeCadaParte(
       dataInicial.ano,
-      disponibilizarPartes(datajw)
+      disponibilizarPartes(await buscarPartesEParsear(urlPartes))
     );
     const figura = extrairFigura(
       await buscarFigura(
@@ -100,13 +99,41 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
     partes.push({ url: urlPartes, figura: figura });
     return partes;
   } catch (e) {
-    console.log(e);
+
+   console.log(e)
+  }
+
+  dataInicial = new DataInicial(periodo);
+  dataFinal = new DataFinal(periodo);
+  urlPartes = definirUrlPartes(dataInicial, dataFinal,2);
+  try {
+    let partes = extrairNomeDeCadaParte(
+      dataInicial.ano,
+      disponibilizarPartes(await buscarPartesEParsear(urlPartes))
+    );
+    const figura = extrairFigura(
+      await buscarFigura(
+        definirUrlFigura(
+          dataInicial.mesSemAcento,
+          dataFinal.mesSemAcento,
+          dataInicial.ano
+        )
+      )
+    );
+
+    partes.push({ url: urlPartes, figura: figura });
+    return partes;
+  } catch (e) {
+
+   console.log(e)
   }
 
   return [];
 };
 
-const definirUrlPartes = (dataInicial, dataFinal) => {
+
+const definirUrlPartes = (dataInicial,dataFinal,mode) => {
+
   if (dataInicial.ano == "2020") {
     if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
     if (dataFinal.dia == "1") dataFinal.dia = "1%C2%BA";
@@ -114,23 +141,31 @@ const definirUrlPartes = (dataInicial, dataFinal) => {
       return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
     if (dataInicial.ano !== dataFinal.ano)
       return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-    if (dataInicial.mes !== dataFinal.mes)
+    if (dataInicial.mes !== dataFinal.mes){
+    console.log("ENCONTROU3");
+    if (dataInicial.indiceMes % 2 == 0){
+      dataInicial.mes = meses[dataInicial.indiceMes - 1];
+    }else {
+      dataFinal.mes = meses[dataInicial.indiceMes + 1];     
+    }
       return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-  } else {
+    }
+    } else {
+
     let mes;
-   
     if (dataInicial.indiceMes % 2 == 0){
       mes = dataInicial.mesSemAcento;
-      if(mes == 'marco')mes = 'mar%C3%A7o';
       dataInicial.mesSemAcento = meses[dataInicial.indiceMes - 1];
     }else {
       mes = dataFinal.mesSemAcento;
-      if(mes == 'marco')mes = 'mar%C3%A7o';
-      dataFinal.mesSemAcento = meses[dataInicial.indiceMes + 1];
-     
+      if (dataInicial.dia > dataFinal.dia)mes = dataInicial.mesSemAcento;
+      dataFinal.mesSemAcento = meses[dataInicial.indiceMes + 1];  
     }
+
+    if(mes == 'marco')mes = 'mar%C3%A7o';
+    if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
+    if (dataFinal.dia == "1") dataFinal.dia = "1%C2%BA";
   
-    console.log('1',dataInicial,  dataFinal);
     if (dataInicial.mes !== dataFinal.mes){
       if(dataInicial.mesSemAcento == 'marco')mes = 'mar%C3%A7o';
       if(dataInicial.mesSemAcento == 'março')dataInicial.mesSemAcento = 'marco';
@@ -139,8 +174,8 @@ const definirUrlPartes = (dataInicial, dataFinal) => {
     }
 
     if(dataInicial.mesSemAcento == 'março')dataInicial.mesSemAcento = 'marco';
-    console.log('2',dataInicial,  dataFinal);
-    return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    if(mode !== 1)return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    else return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
   }
 };
 

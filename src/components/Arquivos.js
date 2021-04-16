@@ -1,4 +1,4 @@
-import { PDFDocument, font } from "pdf-lib";
+import { PDFDocument } from "pdf-lib";
 
 export class Arquivos {
   constructor(grupos, dataini, datafim) {
