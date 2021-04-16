@@ -135,6 +135,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
   return [];
 };
 
+
 const definirUrlPartes = (dataInicial,dataFinal,mode) => {
   if (dataInicial.ano == "2020") {
     if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
