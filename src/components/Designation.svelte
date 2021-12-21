@@ -8,11 +8,9 @@
   import ManualSelection from "./ManualSelection.svelte";
   import { nDate } from "../shared/date/nDate";
   import { db } from "../../firebase";
-  import Modal  from "../shared/Modal.svelte";
+  import Modal from "../shared/Modal.svelte";
   import PopupConfirm from "../shared/PopupConfirm.svelte";
-  import { Arquivos } from './Arquivos';
-
- 
+  import { Arquivos } from "./Arquivos";
 
   export let gruposNumero = [];
   export let irmaos = [];
@@ -47,7 +45,6 @@
   let designacaoPeriodo;
   let data = [];
   let timestamp = null;
- 
 
   const periodoRef = db.collection("periodoRef");
 
@@ -62,41 +59,44 @@
 
   const getDataUrlJw = async (params) => {
     try {
-      // console.log(params)
-      // const res = await fetch("http://localhost:3000/jw?data=" + params);
-      // let dadosjs = await res.json();
-      // dadosjs = dadosjs.data;
-      // console.log(dadosjs);
+      //DEV
+       //console.log(params);
+       //const res = await fetch("http://localhost:3000/jw?data=" + params);
+       //let dadosjs = await res.json();
+       //dadosjs = dadosjs.data;
+       //console.log(dadosjs);
 
-       const res = await callFirebaseFnJw({ data: params });
-       let dadosjs = res.data.dados; // get info layout from jw site
-      
-       dadosjs = dadosjs.filter(a => a !== null);
-     
-   
+      //PROD
+      const res = await callFirebaseFnJw({ data: params });
+      let dadosjs = res.data.dados; // get info layout from jw site
+
+      dadosjs = dadosjs.filter((a) => a !== null);
+
       if (dadosjs.length > 0) {
-        let dados = dadosjs.splice(dadosjs.length -1, 1);
-      
-        let discurso10Index = dadosjs.findIndex(a => a.toLowerCase().match('<strong>“</strong>'));
-        if(discurso10Index >= 0)dadosjs[discurso10Index] = '<strong>Discurso 10min</strong>';
-        dadosjs = dadosjs.filter(a => !a.toLowerCase().match('cântico'));
-      
+        let dados = dadosjs.splice(dadosjs.length - 1, 1);
+
+        let discurso10Index = dadosjs.findIndex((a) =>
+          a.toLowerCase().match("<strong>“</strong>")
+        );
+        if (discurso10Index >= 0)
+          dadosjs[discurso10Index] = "<strong>Discurso 10min</strong>";
+        dadosjs = dadosjs.filter((a) => !a.toLowerCase().match("cântico"));
+
         imagemjw = dados[0].figura;
         linksitejw = dados[0].url; // extract main image
         partesjw = [...dadosjs];
-      
+
         const infJw = { imagemjw, linksitejw, partesjw };
 
         embaralha(irmaos);
 
-        irmaos
-          .sort((a, b) =>
-            nDate(a.data).getTime() < nDate(b.data).getTime()
-              ? -1
-              : nDate(a.data).getTime() > nDate(b.data).getTime()
-              ? 1
-              : 0
-          );
+        irmaos.sort((a, b) =>
+          nDate(a.data).getTime() < nDate(b.data).getTime()
+            ? -1
+            : nDate(a.data).getTime() > nDate(b.data).getTime()
+            ? 1
+            : 0
+        );
 
         designacaoPeriodo = new DesignacaoPeriodo(
           irmaos,
@@ -240,7 +240,10 @@
           dispatch("snack", { color: "green", text: "Período removido" });
           if (irmaosForUpdate.length >= 0) {
             irmaosForUpdate.forEach((t) => {
-              dispatch("updatePerson", { irmao: t.irmaoEscalado, reverse: true });
+              dispatch("updatePerson", {
+                irmao: t.irmaoEscalado,
+                reverse: true,
+              });
             });
           }
           doPost(
@@ -268,12 +271,14 @@
           let irmaosForUpdate = designacaoPeriodo.irmaosForUpdate();
           if (irmaosForUpdate.length >= 0) {
             //if (!timestamp)
-              irmaosForUpdate.forEach((a) => {
-                a.irmaoEscalado.data = designacaoPeriodo.dataInicial.toLocaleDateString(
-                  "pt-BR"
-                );
-                dispatch("updatePerson", { irmao: a.irmaoEscalado, reverse: a.parteDiferente });
+            irmaosForUpdate.forEach((a) => {
+              a.irmaoEscalado.data =
+                designacaoPeriodo.dataInicial.toLocaleDateString("pt-BR");
+              dispatch("updatePerson", {
+                irmao: a.irmaoEscalado,
+                reverse: a.parteDiferente,
               });
+            });
             if (designacaoPeriodo.reverseIrmaos.length >= 0) {
               designacaoPeriodo.reverseIrmaos.forEach((t) => {
                 if (!irmaosForUpdate.find((g) => g.irmaoEscalado.id == t.id)) {
@@ -291,22 +296,235 @@
   };
 
   let showModal = false;
-  const toggleModal = () =>{
-    showModal = !showModal
-  }
-
+  const toggleModal = () => {
+    showModal = !showModal;
+  };
 
   const montarArquivos = () => {
-
-    new Arquivos(designacaoPeriodo.grupos,dataInicial,dataFinal);
-
- 
-  
-}
-  
+    new Arquivos(designacaoPeriodo.grupos, dataInicial, dataFinal);
+  };
 
   doPost(montaDataProxima());
 </script>
+
+{#if showModalManualSelect}
+  <ManualSelection
+    {data}
+    on:click={toggleModalManualSelect}
+    on:substituicao={(e) => {
+      if (designacaoPeriodo.troca(e.detail.subIrmao, data)) {
+        designacaoPeriodo.grupos = [...designacaoPeriodo.grupos];
+      }
+      toggleModalManualSelect();
+    }}
+  />
+{/if}
+
+<Modal {showModal} on:click={toggleModal}>
+  <PopupConfirm
+    message={`Remover período ${dataInicial.toLocaleDateString(
+      "pt-br"
+    )}-${dataFinal.toLocaleDateString("pt-br")}`}
+    on:action={(e) => {
+      e.detail ? deletarPeriodo() : (showModal = !showModal);
+    }}
+  />
+  <div slot="title">
+    <h3>Confirmar</h3>
+  </div>
+</Modal>
+
+<div class="pane" on:click|self={() => toggleModalManualSelect()}>
+  <div class="btnControlDate">
+    <Button
+      type="secondary"
+      inverse={true}
+      on:click={() => {
+        doPost(montaDataAnterior());
+      }}
+    >
+      👈🏻
+    </Button>
+    <div class="btn-resfresh">
+      <Button
+        type="secondary"
+        inverse={true}
+        on:click={() => {
+          doPost(
+            `${dataInicial.toLocaleDateString(
+              "pt-br"
+            )}-${dataFinal.toLocaleDateString("pt-br")}`
+          );
+        }}
+      >
+        🔄
+      </Button>
+    </div>
+    {#if dataFinal.getMonth() == dataInicial.getMonth()}
+      <div class="periodo">
+        <h2>
+          <a target="_blank" href={designacaoPeriodo?.linksite}
+            >{dataInicial.getDate()}-{dataFinal.getDate()}
+            de
+            {meses[dataInicial.getMonth() + 1]}</a
+          >
+        </h2>
+      </div>
+    {:else}
+      <div class="periodo">
+        <h2>
+          <a target="_blank" href={designacaoPeriodo?.linksite}
+            >{dataInicial.getDate()}
+            de
+            {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
+            de
+            {meses[dataFinal.getMonth() + 1]}</a
+          >
+        </h2>
+      </div>
+    {/if}
+
+    <Button
+      type="secondary"
+      inverse={true}
+      on:click={() => {
+        doPost(montaDataProxima());
+      }}
+    >
+      👉🏻
+    </Button>
+  </div>
+
+  {#if pronto && designacaoPeriodo?.grupos.length > 0}
+    <div class="table-align" in:fade|local={{ duration: 1000 }}>
+      <table>
+        <tr class="control-table">
+          <td class="figure">
+            <img
+              src={designacaoPeriodo.imagem}
+              alt="Imagem"
+              hidden={designacaoPeriodo.imagem == ""}
+            />
+          </td>
+          <td class="control">
+            <div class="command-column">
+              <div class="command-line">
+                <Button type="secondary" on:click={salvarPeriodo}>
+                  Salvar
+                </Button>
+
+                <Button
+                  type="yellow"
+                  hidden={!timestamp}
+                  on:click={montarArquivos}>Arquivos</Button
+                >
+
+                <Button
+                  type="primary"
+                  hidden={!timestamp}
+                  on:click={toggleModal}
+                >
+                  Deletar
+                </Button>
+              </div>
+              {#if timestamp}
+                <p class="datasave">
+                  Salvo:
+                  {timestamp?.toLocaleDateString("pt-BR")}
+                  {timestamp?.toLocaleTimeString("pt-BR")}
+                </p>
+              {/if}
+            </div>
+          </td>
+        </tr>
+        {#each designacaoPeriodo.grupos as gp, i}
+          {#if gp}
+            <tr>
+              <td
+                class="titulo"
+                style={timestamp ? "background:yellow;color:black" : ""}
+              >
+                {gp.nomeGrupo}
+                -
+                {gp.nomeSala}
+              </td>
+              <td
+                class="titulo-input"
+                style={timestamp ? "background:yellow;color:black" : ""}
+              >
+                Designado
+              </td>
+              <td
+                class="titulo-input"
+                style={timestamp ? "background:yellow;color:black" : ""}
+              >
+                Ajudante
+              </td>
+            </tr>
+            {#each gp.partes as item}
+              <tr>
+                <td class="label-input">
+                  {@html item.titulo}
+                </td>
+                <td class="person-input">
+                  {#if item.vaga1}
+                    <span
+                      class="stick"
+                      on:click={(e) => {
+                        manualSelection(item, 1, gp, e);
+                      }}
+                      style={item.vaga1.sexo == "F" ? "color:#d90166" : ""}
+                    >
+                      {#if item.vaga1.privilegio}
+                        <span class="privilegio">{item.vaga1?.privilegio}</span>
+                      {/if}
+
+                      {item.vaga1.nome}
+                      {#if item.vaga1.data}
+                        <span class="dias-diferenca"
+                          >{designacaoPeriodo.diasSemParte(
+                            item.vaga1.data
+                          )}</span
+                        >
+                      {/if}
+                    </span>
+                  {/if}
+                </td>
+                <td class="person-input">
+                  {#if item.vaga2}
+                    <span
+                      on:click={(e) => {
+                        manualSelection(item, 2, gp, e);
+                      }}
+                      class="stick"
+                      style={item.vaga2.sexo == "F" ? "color:#d90166" : ""}
+                    >
+                      {#if item.vaga2.privilegio}
+                        <span class="privilegio">{item.vaga2?.privilegio}</span>
+                      {/if}
+                      {item.vaga2.nome}
+                      {#if item.vaga2.data}
+                        <span class="dias-diferenca"
+                          >{designacaoPeriodo.diasSemParte(
+                            item.vaga2.data
+                          )}</span
+                        >
+                      {/if}
+                    </span>
+                  {/if}
+                </td>
+              </tr>
+            {/each}
+          {/if}
+        {/each}
+      </table>
+    </div>
+  {:else if pronto && (designacaoPeriodo?.grupos.length <= 0 || !designacaoPeriodo)}
+    <p>Aconteceu algum erro!!!</p>
+  {:else}
+    <Spinner />
+  {/if}
+</div>
 
 <style>
   .pane {
@@ -496,199 +714,8 @@
     background-color: yellow;
   }
 
-  .btn-resfresh{
+  .btn-resfresh {
     position: absolute;
     margin-left: 5em;
   }
 </style>
-
-{#if showModalManualSelect}
-  <ManualSelection
-    {data}
-    on:click={toggleModalManualSelect}
-    on:substituicao={(e) => {
-      if (designacaoPeriodo.troca(e.detail.subIrmao, data)) {
-        designacaoPeriodo.grupos = [...designacaoPeriodo.grupos];
-      }
-      toggleModalManualSelect();
-    }} />
-{/if}
-
-<Modal {showModal} on:click={toggleModal}>
-    <PopupConfirm
-      message={`Remover período ${dataInicial.toLocaleDateString("pt-br")}-${dataFinal.toLocaleDateString("pt-br")}`}
-      on:action={(e) => {
-        e.detail ? deletarPeriodo() : (showModal = !showModal);
-      }} />
-  <div slot="title">
-    <h3>Confirmar</h3>
-  </div>
-</Modal>
-
-<div class="pane" on:click|self={() => toggleModalManualSelect()}>
-  <div class="btnControlDate">
-    <Button
-      type="secondary"
-      inverse={true}
-      on:click={() => {
-        doPost(montaDataAnterior());
-      }}>
-      👈🏻
-    </Button>
-    <div class="btn-resfresh">
-    <Button
-      type="secondary"
-      inverse={true}
-      on:click={() => {
-        doPost(`${dataInicial.toLocaleDateString('pt-br')}-${dataFinal.toLocaleDateString('pt-br')}`);
-      }}>
-      🔄
-    </Button>
-  </div>
-    {#if dataFinal.getMonth() == dataInicial.getMonth()}
-      <div class="periodo">
-        <h2>
-          <a
-            target="_blank"
-            href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}-{dataFinal.getDate()}
-            de
-            {meses[dataInicial.getMonth() + 1]}</a>
-        </h2>
-      </div>
-    {:else}
-      <div class="periodo">
-        <h2>
-          <a
-            target="_blank"
-            href={designacaoPeriodo?.linksite}>{dataInicial.getDate()}
-            de
-            {meses[dataInicial.getMonth() + 1]}-{dataFinal.getDate()}
-            de
-            {meses[dataFinal.getMonth() + 1]}</a>
-        </h2>
-      </div>
-    {/if}
-
-    <Button
-      type="secondary"
-      inverse={true}
-      on:click={() => {
-        doPost(montaDataProxima());
-      }}>
-      👉🏻
-    </Button>
-  </div>
-
-  {#if pronto && designacaoPeriodo?.grupos.length > 0}
-    <div class="table-align" in:fade|local={{ duration: 1000 }}>
-      <table>
-        <tr class="control-table">
-          <td class="figure">
-            <img
-              src={designacaoPeriodo.imagem}
-              alt="Imagem"
-              hidden={designacaoPeriodo.imagem == ''} />
-          </td>
-          <td class="control">
-            <div class="command-column">
-              <div class="command-line">
-                <Button type="secondary" on:click={salvarPeriodo}>
-                  Salvar
-                </Button>
-
-                <Button type="yellow" hidden={!timestamp} on:click={montarArquivos}>Arquivos</Button>
-
-                <Button
-                  type="primary"
-                  hidden={!timestamp}
-                  on:click={toggleModal}>
-                  Deletar
-                </Button>
-              </div>
-              {#if timestamp}
-                <p class="datasave">
-                  Salvo:
-                  {timestamp?.toLocaleDateString('pt-BR')}
-                  {timestamp?.toLocaleTimeString('pt-BR')}
-                </p>
-              {/if}
-            </div>
-          </td>
-        </tr>
-        {#each designacaoPeriodo.grupos as gp, i}
-          {#if gp}
-            <tr>
-              <td
-                class="titulo"
-                style={timestamp ? 'background:yellow;color:black' : ''}>
-                {gp.nomeGrupo}
-                -
-                {gp.nomeSala}
-              </td>
-              <td
-                class="titulo-input"
-                style={timestamp ? 'background:yellow;color:black' : ''}>
-                Designado
-              </td>
-              <td
-                class="titulo-input"
-                style={timestamp ? 'background:yellow;color:black' : ''}>
-                Ajudante
-              </td>
-            </tr>
-            {#each gp.partes as item}
-              <tr>
-                <td class="label-input">
-                  {@html item.titulo}
-                </td>
-                <td class="person-input">
-                  {#if item.vaga1}
-                    <span
-                      class="stick"
-                      on:click={(e) => {
-                        manualSelection(item, 1, gp, e);
-                      }}
-                      style={item.vaga1.sexo == 'F' ? 'color:#d90166' : ''}>
-                      {#if item.vaga1.privilegio}
-                        <span class="privilegio">{item.vaga1?.privilegio}</span>
-                      {/if}
-
-                      {item.vaga1.nome}
-                      {#if item.vaga1.data}
-                        <span
-                          class="dias-diferenca">{designacaoPeriodo.diasSemParte(item.vaga1.data)}</span>
-                      {/if}
-                    </span>
-                  {/if}
-                </td>
-                <td class="person-input">
-                  {#if item.vaga2}
-                    <span
-                      on:click={(e) => {
-                        manualSelection(item, 2, gp, e);
-                      }}
-                      class="stick"
-                      style={item.vaga2.sexo == 'F' ? 'color:#d90166' : ''}>
-                      {#if item.vaga2.privilegio}
-                        <span class="privilegio">{item.vaga2?.privilegio}</span>
-                      {/if}
-                      {item.vaga2.nome}
-                      {#if item.vaga2.data}
-                        <span
-                          class="dias-diferenca">{designacaoPeriodo.diasSemParte(item.vaga2.data)}</span>
-                      {/if}
-                    </span>
-                  {/if}
-                </td>
-              </tr>
-            {/each}
-          {/if}
-        {/each}
-      </table>
-    </div>
-  {:else if pronto && ( designacaoPeriodo?.grupos.length <= 0 || !designacaoPeriodo )}
-    <p>Aconteceu algum erro!!!</p>
-  {:else}
-    <Spinner />
-  {/if}
-</div>

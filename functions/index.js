@@ -81,7 +81,7 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
   let dataInicial = new DataInicial(periodo);
   let dataFinal = new DataFinal(periodo);
 
-  let urlPartes = definirUrlPartes(dataInicial, dataFinal,1);
+  let urlPartes = definirUrlPartes(dataInicial, dataFinal, 1);
 
   try {
     let partes = extrairNomeDeCadaParte(
@@ -102,14 +102,14 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
     return partes;
   } catch (e) {
 
-   console.log(e)
+    console.log(e)
   }
 
   //Aqui repetimos a instrução porque cada momento o link está de um jeito e não da pra prever
   //colocamos o valor 2 em definirUrlPartes para entrar o link alternativo
   dataInicial = new DataInicial(periodo);
   dataFinal = new DataFinal(periodo);
-  urlPartes = definirUrlPartes(dataInicial, dataFinal,2);
+  urlPartes = definirUrlPartes(dataInicial, dataFinal, 2);
   try {
     let partes = extrairNomeDeCadaParte(
       dataInicial.ano,
@@ -129,14 +129,39 @@ const pegaInformacaoNoSiteJW = async (periodo) => {
     return partes;
   } catch (e) {
 
-   console.log(e)
+    console.log(e)
+  }
+
+  dataInicial = new DataInicial(periodo);
+  dataFinal = new DataFinal(periodo);
+  urlPartes = definirUrlPartes(dataInicial, dataFinal, 3);
+  try {
+    let partes = extrairNomeDeCadaParte(
+      dataInicial.ano,
+      disponibilizarPartes(await buscarPartesEParsear(urlPartes))
+    );
+    const figura = extrairFigura(
+      await buscarFigura(
+        definirUrlFigura(
+          dataInicial.mesSemAcento,
+          dataFinal.mesSemAcento,
+          dataInicial.ano
+        )
+      )
+    );
+
+    partes.push({ url: urlPartes, figura: figura });
+    return partes;
+  } catch (e) {
+
+    console.log(e)
   }
 
   return [];
 };
 
 
-const definirUrlPartes = (dataInicial,dataFinal,mode) => {
+const definirUrlPartes = (dataInicial, dataFinal, mode) => {
   if (dataInicial.ano == "2020") {
     if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
     if (dataFinal.dia == "1") dataFinal.dia = "1%C2%BA";
@@ -146,33 +171,38 @@ const definirUrlPartes = (dataInicial,dataFinal,mode) => {
       return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
     if (dataInicial.mes !== dataFinal.mes)
       return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataInicial.ano}-mwb/Programa-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-    } else {
+  } else {
 
-      let mes;
-      if (dataInicial.indiceMes % 2 == 0){
-        mes = dataInicial.mesSemAcento;
-        dataInicial.mesSemAcento = meses[dataInicial.indiceMes - 1];
-      }else {
-        mes = dataFinal.mesSemAcento;
-        if (dataInicial.dia > dataFinal.dia)mes = dataInicial.mesSemAcento;
-        dataFinal.mesSemAcento = meses[dataInicial.indiceMes + 1];  
-      }
-  
-      if(mes == 'marco')mes = 'mar%C3%A7o';
-      if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
-      if (dataFinal.dia == "1") dataFinal.dia = "1%C2%BA";
-    
-      if (dataInicial.mes !== dataFinal.mes){
-        if(dataInicial.mesSemAcento == 'marco')mes = 'mar%C3%A7o';
-        if(dataInicial.mesSemAcento == 'março')dataInicial.mesSemAcento = 'marco';
-        if(dataFinal.indiceMes % 2 != 0)dataFinal.mesSemAcento = mes;
-      return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`
-      }
-  
-      if(dataInicial.mesSemAcento == 'março')dataInicial.mesSemAcento = 'marco';
-      if(mode !== 1)return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-      else return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    let mes;
+    if (dataInicial.indiceMes % 2 == 0) {
+      mes = dataInicial.mesSemAcento;
+      dataInicial.mesSemAcento = meses[dataInicial.indiceMes - 1];
+    } else {
+      mes = dataFinal.mesSemAcento;
+      if (dataInicial.dia > dataFinal.dia) mes = dataInicial.mesSemAcento;
+      dataFinal.mesSemAcento = meses[dataInicial.indiceMes + 1];
     }
+
+    if (mes == 'marco') mes = 'mar%C3%A7o';
+    // if (dataInicial.dia == "1") dataInicial.dia = "1%C2%BA";
+    // if (dataFinal.dia == "1") dataFinal.dia = "1%C2%BA";
+    if (dataInicial.ano !== dataFinal.ano) {
+      dataFinal.mesSemAcento = meses[12];
+      return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    }
+
+    if (dataInicial.mes !== dataFinal.mes) {
+      if (dataInicial.mesSemAcento == 'marco') mes = 'mar%C3%A7o';
+      if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
+      if (dataFinal.indiceMes % 2 != 0) dataFinal.mesSemAcento = mes;
+      return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${mes}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`
+    }
+
+    if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
+    if (mode == 3) return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}/`;
+    if (mode == 2) return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    else return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+  }
 };
 
 const extrairNomeDeCadaParte = (anoini, parte) => {
@@ -217,7 +247,7 @@ const disponibilizarPartes = (root) => {
     const data = root.querySelector(target);
     console.log(data);
     const info = data.querySelector("strong");
-    if(!info)return null;
+    if (!info) return null;
     return info.toString();
   };
 };
