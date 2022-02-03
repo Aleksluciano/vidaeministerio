@@ -260,6 +260,7 @@ const buscarFigura = async (url) => {
     return HTMLParser.parse(res.data);
   }catch (e) {
     console.log(e)
+    return ' ';
   }
 };
 

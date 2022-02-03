@@ -190,7 +190,7 @@ const definirUrlPartes = (dataInicial, dataFinal, mode) => {
       dataFinal.mesSemAcento = meses[12];
       return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
     }
-    if( dataFinal.mesSemAcento == 'marco')dataFinal.mes = 'mar%C3%A7o';
+    if(dataFinal.mesSemAcento == 'marco')dataFinal.mes = 'mar%C3%A7o';
     if (dataInicial.mes !== dataFinal.mes) {
       if (dataInicial.mesSemAcento == 'marco') mes = 'mar%C3%A7o';
       if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
@@ -201,7 +201,7 @@ const definirUrlPartes = (dataInicial, dataFinal, mode) => {
     if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
     if (mode == 3) return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}/`;
     if (mode == 2) return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-    else return `https://www.w.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    else return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
   }
 };
 
