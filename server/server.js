@@ -5,6 +5,8 @@ const cors = require("cors");
 const axios = require('axios');
 const HTMLParser = require("node-html-parser");
 
+
+
 app.use(cors());
 app.use(express.static("./../public"));
 
@@ -31,7 +33,7 @@ app.listen(port, () => {
 
 const axiosConfig = {
   headers: {
-    "Content-Type": "application/json;charset=UTF-8",
+    "Content-Type": 'application/json',
     "Access-Control-Allow-Headers": "*",
   },
 };
@@ -196,6 +198,7 @@ const definirUrlPartes = (dataInicial, dataFinal, mode) => {
       dataFinal.mesSemAcento = meses[12];
       return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-de-${dataInicial.mes}-de-${dataInicial.ano}-${dataFinal.dia}-de-${dataFinal.mes}-de-${dataFinal.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
     }
+    if( dataFinal.mesSemAcento == 'marco')dataFinal.mes = 'mar%C3%A7o';
     if (dataInicial.mes !== dataFinal.mes) {
       if (dataInicial.mesSemAcento == 'marco') mes = 'mar%C3%A7o';
       if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
@@ -204,9 +207,9 @@ const definirUrlPartes = (dataInicial, dataFinal, mode) => {
     }
 
     if (dataInicial.mesSemAcento == 'março') dataInicial.mesSemAcento = 'marco';
-    if (mode == 3) return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}/`;
-    if (mode == 2) return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
-    else return `https://jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    if (mode == 3) return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}/`;
+    if (mode == 2) return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
+    else return `https://www.jw.org/pt/biblioteca/jw-apostila-do-mes/${dataInicial.mesSemAcento}-${dataFinal.mesSemAcento}-${dataInicial.ano}-mwb/Programa%C3%A7%C3%A3o-da-semana-de-${dataInicial.dia}-${dataFinal.dia}-de-${mes}-de-${dataInicial.ano}-na-Apostila-da-Reuni%C3%A3o-Vida-e-Minist%C3%A9rio/`;
   }
 };
 
@@ -216,24 +219,33 @@ const extrairNomeDeCadaParte = (anoini, parte) => {
   return [parte("#p10"), parte("#p12"), parte("#p13"), parte("#p14"), parte("#p15")];
 };
 const buscarPartesEParsear = async (url) => {
-  try {
+
+
     //console.log("ulala",url,axiosConfig);
-    const res = await axios.get(url, axiosConfig);
+  try {
+    let res = await axios.get(url);
+    console.log(res)
     for (var key in res) {
       if (res.hasOwnProperty(key)) {
         console.log(key);
       }
     }
+    return HTMLParser.parse(res.data);
+  }catch (e) {
+    console.log(e);
+  }
+
+  return HTMLParser.parse(res.data);
+
+
     //console.log(res);
     //const res_parse = await res.json();
     console.log("lele", HTMLParser.parse(res.data));
 
-    return HTMLParser.parse(res.data);
-  } catch (e) {
-    console.log("erro", e.message, e.request);
-    return ' ';
-  }
-};
+
+
+
+  };
 
 const definirUrlFigura = (mesini, mesfim, anoini) => {
   if (anoini == "2020")
@@ -243,8 +255,12 @@ const definirUrlFigura = (mesini, mesfim, anoini) => {
 };
 
 const buscarFigura = async (url) => {
-  const res = await axios.get(url, axiosConfig);
-  return HTMLParser.parse(res.data);
+  try {
+    const res = await axios.get(url);
+    return HTMLParser.parse(res.data);
+  }catch (e) {
+    console.log(e)
+  }
 };
 
 const disponibilizarPartes = (root) => {
